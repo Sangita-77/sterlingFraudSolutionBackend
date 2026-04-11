@@ -2,7 +2,7 @@
   "name": "sterlingfraudsolution",
   "version": "1.0.0",
   "type": "module",
-  "main": "index.js",
+  "main": "src/server.js",
   "scripts": {
     "dev": "nodemon src/server.js"
   },
@@ -11,6 +11,7 @@
     "cors": "^2.8.6",
     "dotenv": "^17.4.1",
     "express": "^5.2.1",
+    "geoip-lite": "^1.4.7",
     "helmet": "^8.1.0",
     "jsonwebtoken": "^9.0.3",
     "mongodb": "^7.1.1",

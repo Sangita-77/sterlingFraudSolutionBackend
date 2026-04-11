@@ -2,7 +2,7 @@ import { User } from "../models/user.model.js";
 import bcrypt from "bcrypt";
 
 export const createUserService = async (data) => {
-  const { name, email, password } = data;
+  const { name, email, password, language, userIp, detectedCountry } = data;
 
   const existingUser = await User.findOne({ email });
   if (existingUser) {
@@ -15,6 +15,9 @@ export const createUserService = async (data) => {
     name,
     email,
     password: hashedPassword,
+    language: language || "en",
+    userIp,
+    detectedCountry,
   });
 
   return user;
