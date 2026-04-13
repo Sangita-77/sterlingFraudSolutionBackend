@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import bcrypt from "bcryptjs";
+import bcrypt from "bcrypt";
 
 const userSchema = new mongoose.Schema(
   {
@@ -88,13 +88,19 @@ userSchema.pre("save", async function () {
   this.userId = lastUser && lastUser.userId ? lastUser.userId + 1 : 1;
 });
 
-// Hash password before saving
 userSchema.pre("save", async function () {
-  if (!this.isModified("password")) {
-    return;
-  }
+  console.log(" Pre-save hook triggered");
+
+  if (!this.isModified("password")) return;
+
   this.password = await bcrypt.hash(this.password, 10);
 });
+
+// Hash password before saving
+// userSchema.pre("save", async function () {
+//   if (!this.isModified("password")) return;
+//   this.password = await bcrypt.hash(this.password, 10);
+// });
 
 // Method to compare password
 userSchema.methods.comparePassword = async function (candidatePassword) {
