@@ -89,7 +89,7 @@ userSchema.pre("save", async function () {
 });
 
 userSchema.pre("save", async function () {
-  console.log(" Pre-save hook triggered");
+  // console.log(" Pre-save hook triggered");
 
   if (!this.isModified("password")) return;
 

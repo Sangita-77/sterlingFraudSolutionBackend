@@ -27,7 +27,7 @@ export const createUserService = async (data) => {
     throw new Error("User already exists");
   }
 
-  // 👇 IMPORTANT: Use new + save (ensures pre-save runs)
+  //  IMPORTANT: Use new + save (ensures pre-save runs)
   const user = new User({
     name: name.trim(),
     email: normalizedEmail,
@@ -55,7 +55,7 @@ export const loginUserService = async (email, password) => {
   const normalizedEmail = email.toLowerCase().trim();
   const cleanPassword = password.trim();
 
-  console.log("Login attempt - Email:", normalizedEmail);
+  // console.log("Login attempt - Email:", normalizedEmail);
 
   // Get user WITH password
   const user = await User.findOne({ email: normalizedEmail }).select("+password");
@@ -72,7 +72,7 @@ export const loginUserService = async (email, password) => {
   // Compare password using schema method
   const isMatch = await user.comparePassword(cleanPassword);
 
-  console.log("Password match result:", isMatch);
+  // console.log("Password match result:", isMatch);
 
   if (!isMatch) {
     throw new Error("Invalid email or password");
