@@ -7,6 +7,7 @@ import {
   updateUserLanguage,
   detectUserLanguage,
 } from "./controllers/language.controller.js";
+import { getAddressTokenStats } from "./controllers/blockchain.controller.js";
 
 
 
@@ -24,7 +25,8 @@ router.get("/language/detect", detectUserLanguage);
 router.get("/language/:userId", getUserLanguage);
 router.put("/language/:userId", updateUserLanguage);
 
-
+// Blockchain routes
+router.post("/blockchain/address/token-stats", getAddressTokenStats);
 
 
 
