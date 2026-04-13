@@ -11,6 +11,8 @@ export const registerUser = async (req, res) => {
       detectedCountry: req.geoData?.country,
     };
 
+    // return console.log("User data to be saved:", userData);
+
     const user = await createUserService(userData);
 
     res.status(201).json({
