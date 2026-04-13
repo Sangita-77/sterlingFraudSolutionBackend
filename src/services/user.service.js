@@ -1,8 +1,12 @@
-import { User } from "../models/user.model.js";
+import User from "../models/user.model.js";
 import bcrypt from "bcrypt";
 
 export const createUserService = async (data) => {
-  const { name, email, password, language, userIp, detectedCountry } = data;
+
+  // console.log("Request body:", data);
+
+  const { name, email, password, language, userIp, detectedCountry,activity,phone,company_name,status,flag } = data;
+  // const { name, email, password, language, userIp, detectedCountry,activity,country,phone,company_name,status,flag } = data;
 
   const existingUser = await User.findOne({ email });
   if (existingUser) {
@@ -18,6 +22,11 @@ export const createUserService = async (data) => {
     language: language || "en",
     userIp,
     detectedCountry,
+    activity,
+    phone,
+    company_name,
+    status: status !== undefined ? status : 1, // Default to active if not provided
+    flag: flag !== undefined ? flag : 2, // Default to user role if not provided
   });
 
   return user;

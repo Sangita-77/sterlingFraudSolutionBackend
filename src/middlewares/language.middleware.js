@@ -25,6 +25,12 @@ export const languageDetectionMiddleware = (req, res, next) => {
   } catch (error) {
     console.error("Language detection middleware error:", error);
     req.detectedLanguage = "en"; // Default fallback
+    req.geoData = {
+      language: "en",
+      country: null,
+      city: null,
+      timezone: null,
+    };
     next();
   }
 };
