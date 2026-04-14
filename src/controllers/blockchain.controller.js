@@ -1,4 +1,4 @@
-import { getAddressTokenStatsService , getAddressAllTxsService } from "../services/blockchain.service.js";
+import { getAddressTokenStatsService , getAddressAllTxsService , getAddressAllTxBoundsService } from "../services/blockchain.service.js";
 
 export const getAddressTokenStats = async (req, res) => {
   try {
@@ -49,6 +49,32 @@ export const getAddressTokenAllTxs = async (req, res) => {
     res.status(200).json({
       success: true,
       data,
+      address,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+export const getAddressAllTxBounds = async (req, res) => {
+  try {
+    const { address } = req.body;
+
+    if (!address) {
+      return res.status(400).json({
+        success: false,
+        message: "Bitcoin address is required in request body",
+      });
+    }
+
+    const tokenStats = await getAddressAllTxBoundsService(address);
+
+    res.status(200).json({
+      success: true,
+      data: tokenStats,
       address,
     });
   } catch (error) {
