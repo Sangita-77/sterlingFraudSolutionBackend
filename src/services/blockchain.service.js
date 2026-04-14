@@ -1,16 +1,6 @@
-/**
- * Blockchain Service
- * Handles external API calls to Crystal Blockchain API
- */
+import axios from "axios";
 
 const CRYSTAL_BLOCKCHAIN_BASE_URL = "https://apiexplorer.crystalblockchain.com";
-
-/**
- * Fetch token stats for a given Bitcoin address
- * @param {string} address - Bitcoin address
- * @returns {Promise<Object>} Token stats data
- */
-import axios from "axios";
 
 export const getAddressTokenStatsService = async (address) => {
   try {
@@ -33,6 +23,36 @@ export const getAddressTokenStatsService = async (address) => {
       `Failed to fetch token stats: ${
         error.response?.status || ""
       } ${error.response?.statusText || error.message}`
+    );
+  }
+};
+
+
+
+export const getAddressAllTxsService = async (address, payload) => {
+  try {
+    if (!address || typeof address !== "string") {
+      throw new Error("Invalid address provided");
+    }
+
+    const url = `${CRYSTAL_BLOCKCHAIN_BASE_URL}/address/${address}/all-txs`;
+
+    const response = await axios.post(url, payload, {
+      headers: {
+        "Accept": "application/json",
+        "User-Agent": "Mozilla/5.0",
+        "Content-Type": "application/json",
+      },
+    });
+
+    return response.data;
+  } catch (error) {
+    console.log("API Error:", error.response?.data);
+
+    throw new Error(
+      `Failed to fetch all txs: ${
+        error.response?.status || ""
+      } ${error.response?.data?.message || error.message}`
     );
   }
 };

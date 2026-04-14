@@ -1,11 +1,5 @@
-import { getAddressTokenStatsService } from "../services/blockchain.service.js";
+import { getAddressTokenStatsService , getAddressAllTxsService } from "../services/blockchain.service.js";
 
-/**
- * Get token statistics for a Bitcoin address
- * @route POST /blockchain/address/token-stats
- * @param {Object} req - Express request object with address in body
- * @param {Object} res - Express response object
- */
 export const getAddressTokenStats = async (req, res) => {
   try {
     const { address } = req.body;
@@ -22,6 +16,39 @@ export const getAddressTokenStats = async (req, res) => {
     res.status(200).json({
       success: true,
       data: tokenStats,
+      address,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+export const getAddressTokenAllTxs = async (req, res) => {
+  try {
+    const { address, payload } = req.body;
+
+    if (!address) {
+      return res.status(400).json({
+        success: false,
+        message: "Bitcoin address is required",
+      });
+    }
+
+    if (!payload || typeof payload !== "object") {
+      return res.status(400).json({
+        success: false,
+        message: "Payload is required and must be an object",
+      });
+    }
+
+    const data = await getAddressAllTxsService(address, payload);
+
+    res.status(200).json({
+      success: true,
+      data,
       address,
     });
   } catch (error) {
