@@ -27,10 +27,10 @@ router.get("/language/:userId", authenticateToken, getUserLanguage);
 router.put("/language/:userId", authenticateToken, updateUserLanguage);
 
 // Blockchain routes - Protected
-router.post("/blockchain/address/token-stats", authenticateToken, getAddressTokenStats);
-router.post("/blockchain/address/all-txs", authenticateToken, getAddressTokenAllTxs);
-router.post("/blockchain/address/all-tx-bounds", authenticateToken, getAddressAllTxBounds);
-router.post("/blockchain/address/tx", authenticateToken , getAddressTx);
+router.post("/blockchain/address/token-stats", getAddressTokenStats);
+router.post("/blockchain/address/all-txs", getAddressTokenAllTxs);
+router.post("/blockchain/address/all-tx-bounds", getAddressAllTxBounds);
+router.post("/blockchain/address/tx" , getAddressTx);
 
 
 
