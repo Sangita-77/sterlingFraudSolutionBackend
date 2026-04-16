@@ -7,7 +7,7 @@ import {
   updateUserLanguage,
   detectUserLanguage,
 } from "./controllers/language.controller.js";
-import { getAddressTokenStats , getAddressTokenAllTxs , getAddressAllTxBounds } from "./controllers/blockchain.controller.js";
+import { getAddressTokenStats , getAddressTokenAllTxs , getAddressAllTxBounds,getAddressTx } from "./controllers/blockchain.controller.js";
 import { authenticateToken, optionalAuth } from "./middlewares/auth.middleware.js";
 
 
@@ -30,6 +30,7 @@ router.put("/language/:userId", authenticateToken, updateUserLanguage);
 router.post("/blockchain/address/token-stats", authenticateToken, getAddressTokenStats);
 router.post("/blockchain/address/all-txs", authenticateToken, getAddressTokenAllTxs);
 router.post("/blockchain/address/all-tx-bounds", authenticateToken, getAddressAllTxBounds);
+router.post("/blockchain/address/tx", authenticateToken , getAddressTx);
 
 
 

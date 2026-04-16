@@ -81,3 +81,28 @@ export const getAddressAllTxBoundsService = async (address, payload) => {
     );
   }
 };
+
+export const getAddressTxService = async (address, payload) => {
+  try {
+    if (!address || typeof address !== "string") {
+      throw new Error("Invalid address provided");
+    }
+
+    const url = `${CRYSTAL_BLOCKCHAIN_BASE_URL}/tx/${address}?prev_next=0`;
+
+    const response = await axios.get(url, {
+      headers: {
+        "Accept": "application/json",
+        "User-Agent": "Mozilla/5.0",
+      },
+    });
+
+    return response.data;
+  } catch (error) {
+    throw new Error(
+      `Failed to fetch all tx bounds: ${
+        error.response?.status || ""
+      } ${error.response?.statusText || error.message}`
+    );
+  }
+};
