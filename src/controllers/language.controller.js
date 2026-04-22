@@ -65,7 +65,7 @@ export const updateUserLanguage = async (req, res) => {
     const user = await User.findByIdAndUpdate(
       userId,
       { language },
-      { new: true }
+      { returnDocument: 'after' }
     ).select("language email");
 
     if (!user) {

@@ -72,7 +72,7 @@ export const loginUser = async (req, res) => {
       },
       {
         arrayFilters: [{ "elem.sessionId": sessionId }],
-        new: true,
+        returnDocument: 'after',
       }
     );
 
