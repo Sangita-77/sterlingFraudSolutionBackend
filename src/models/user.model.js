@@ -65,6 +65,20 @@ const userSchema = new mongoose.Schema(
     },
     userIp: String,
     detectedCountry: String,
+    sessions: [
+      {
+        sessionId: String,
+        refreshToken: String,
+        accessTokenHash: String, // Hash of access token for blacklist
+        createdAt: { type: Date, default: Date.now },
+        expiresAt: Date,
+        ipAddress: String,
+        userAgent: String,
+        lastActivityAt: Date,
+      },
+    ],
+    lastLoginAt: Date,
+    lastLogoutAt: Date,
   },
   { timestamps: true }
 );
