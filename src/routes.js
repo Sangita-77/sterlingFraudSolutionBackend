@@ -1,6 +1,12 @@
 import { Router } from "express";
 
-import { registerUser, loginUser } from "./controllers/user.controller.js";
+import {
+  registerUser,
+  loginUser,
+  logoutUser,
+  refreshAccessToken,
+  getActiveSessions
+} from "./controllers/user.controller.js";
 import {
   getAvailableLanguages,
   getUserLanguage,
@@ -19,6 +25,11 @@ const router = Router();
 // Public routes
 router.post("/register", registerUser);
 router.post("/login", loginUser);
+router.post("/refresh-token", refreshAccessToken);
+
+// Protected routes
+router.post("/logout", authenticateToken, logoutUser);
+router.get("/sessions", authenticateToken, getActiveSessions);
 
 // Language routes
 router.get("/languages", getAvailableLanguages);
@@ -31,9 +42,5 @@ router.post("/blockchain/address/token-stats", getAddressTokenStats);
 router.post("/blockchain/address/all-txs", getAddressTokenAllTxs);
 router.post("/blockchain/address/all-tx-bounds", getAddressAllTxBounds);
 router.post("/blockchain/address/tx" , getAddressTx);
-
-
-
-
 
 export default router;

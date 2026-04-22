@@ -1,5 +1,6 @@
 import User from "../models/user.model.js";
 import bcrypt from "bcrypt";
+import { hashToken, generateSessionId, blacklistToken } from "./token.service.js";
 
 export const createUserService = async (data) => {
   const {
@@ -40,6 +41,7 @@ export const createUserService = async (data) => {
     company_name,
     status: status !== undefined ? status : 1,
     flag: flag !== undefined ? flag : 2,
+    sessions: [],
   });
 
   await user.save(); // 🔥 pre-save WILL run here
@@ -47,15 +49,17 @@ export const createUserService = async (data) => {
   return user;
 };
 
-export const loginUserService = async (email, password) => {
+export const loginUserService = async (
+  email,
+  password,
+  sessionData = {}
+) => {
   if (!email || !password) {
     throw new Error("Email and password are required");
   }
 
   const normalizedEmail = email.toLowerCase().trim();
   const cleanPassword = password.trim();
-
-  // console.log("Login attempt - Email:", normalizedEmail);
 
   // Get user WITH password
   const user = await User.findOne({ email: normalizedEmail }).select("+password");
@@ -64,18 +68,114 @@ export const loginUserService = async (email, password) => {
     throw new Error("Invalid email or password");
   }
 
+  // Check if user is active
+  if (user.status === 1) {
+    throw new Error("User account is deactivated");
+  }
+
   // Safety check: ensure password is hashed
   if (!user.password.startsWith("$2b$")) {
     throw new Error("Password is not hashed properly. Re-register user.");
   }
 
-  // Compare password using schema method
+  // Compare password
   const isMatch = await user.comparePassword(cleanPassword);
-
-  // console.log("Password match result:", isMatch);
 
   if (!isMatch) {
     throw new Error("Invalid email or password");
+  }
+
+  // Create new session
+  const sessionId = generateSessionId();
+  user.sessions.push({
+    sessionId,
+    createdAt: new Date(),
+    expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days for refresh token
+    ipAddress: sessionData.ipAddress || null,
+    userAgent: sessionData.userAgent || null,
+    lastActivityAt: new Date(),
+  });
+
+  user.lastLoginAt = new Date();
+  await user.save();
+
+  return {
+    user,
+    sessionId,
+    accessTokenExpiry: 3600, // 1 hour
+    refreshTokenExpiry: 7 * 24 * 60 * 60, // 7 days
+  };
+};
+
+export const logoutUserService = async (userId, sessionId = null, logoutAll = false) => {
+  const user = await User.findById(userId);
+
+  if (!user) {
+    throw new Error("User not found");
+  }
+
+  if (logoutAll) {
+    // Logout from all devices - clear all sessions
+    user.sessions = [];
+  } else if (sessionId) {
+    // Logout from specific device
+    user.sessions = user.sessions.filter((s) => s.sessionId !== sessionId);
+  } else {
+    throw new Error("SessionId or logoutAll must be provided");
+  }
+
+  user.lastLogoutAt = new Date();
+  await user.save();
+
+  return { message: "Logged out successfully" };
+};
+
+export const refreshAccessTokenService = async (userId, sessionId) => {
+  const user = await User.findById(userId);
+
+  if (!user) {
+    throw new Error("User not found");
+  }
+
+  const session = user.sessions.find((s) => s.sessionId === sessionId);
+
+  if (!session) {
+    throw new Error("Invalid session");
+  }
+
+  // Check if refresh token is expired
+  if (new Date() > session.expiresAt) {
+    user.sessions = user.sessions.filter((s) => s.sessionId !== sessionId);
+    await user.save();
+    throw new Error("Refresh token expired. Please login again.");
+  }
+
+  // Update last activity
+  session.lastActivityAt = new Date();
+  await user.save();
+
+  return {
+    user,
+    sessionId,
+    accessTokenExpiry: 3600, // 1 hour
+  };
+};
+
+export const verifyRefreshTokenService = async (userId, sessionId, token) => {
+  const user = await User.findById(userId);
+
+  if (!user) {
+    throw new Error("User not found");
+  }
+
+  const session = user.sessions.find((s) => s.sessionId === sessionId);
+
+  if (!session) {
+    throw new Error("Invalid session");
+  }
+
+  if (!session.refreshToken || session.refreshToken !== token) {
+    throw new Error("Invalid refresh token");
   }
 
   return user;
