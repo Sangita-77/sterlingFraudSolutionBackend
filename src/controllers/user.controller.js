@@ -5,6 +5,7 @@ import {
   refreshAccessTokenService,
 } from "../services/user.service.js";
 import { blacklistToken, hashToken } from "../services/token.service.js";
+import User from "../models/user.model.js";
 import jwt from "jsonwebtoken";
 
 export const registerUser = async (req, res) => {
@@ -128,7 +129,7 @@ export const logoutUser = async (req, res) => {
 export const refreshAccessToken = async (req, res) => {
   try {
     const { refreshToken, sessionId } = req.body;
-    const userId = req.userId;
+    const userId = req.body.userId || req.userId;
 
     if (!userId) {
       return res.status(401).json({ message: "User not authenticated" });
@@ -203,5 +204,4 @@ export const getActiveSessions = async (req, res) => {
   }
 };
 
-// Import User model
-import User from "../models/user.model.js";
+
