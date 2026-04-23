@@ -5,7 +5,8 @@ import {
   loginUser,
   logoutUser,
   refreshAccessToken,
-  getActiveSessions
+  getActiveSessions,
+  sendCodeToMail,
 } from "./controllers/user.controller.js";
 import {
   getAvailableLanguages,
@@ -26,6 +27,7 @@ const router = Router();
 router.post("/register", registerUser);
 router.post("/login", loginUser);
 router.post("/refresh-token", refreshAccessToken);
+router.post("/send-code", sendCodeToMail);
 
 // Protected routes
 router.post("/logout", authenticateToken, logoutUser);

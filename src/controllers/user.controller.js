@@ -3,6 +3,7 @@ import {
   loginUserService,
   logoutUserService,
   refreshAccessTokenService,
+  sendCodeToMailService,
 } from "../services/user.service.js";
 import { blacklistToken, hashToken } from "../services/token.service.js";
 import User from "../models/user.model.js";
@@ -199,6 +200,22 @@ export const getActiveSessions = async (req, res) => {
       sessions,
       totalSessions: sessions.length,
     });
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+};
+
+export const sendCodeToMail = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ message: "Email is required" });
+    }
+
+    const result = await sendCodeToMailService(email);
+
+    res.json({ success: true, ...result });
   } catch (error) {
     res.status(400).json({ message: error.message });
   }

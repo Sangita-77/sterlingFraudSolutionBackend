@@ -1,6 +1,7 @@
 import User from "../models/user.model.js";
 import bcrypt from "bcrypt";
 import { hashToken, generateSessionId, blacklistToken } from "./token.service.js";
+import { sendMail } from "./email.service.js";
 
 export const createUserService = async (data) => {
   const {
@@ -179,4 +180,40 @@ export const verifyRefreshTokenService = async (userId, sessionId, token) => {
   }
 
   return user;
+};
+
+export const sendCodeToMailService = async (email) => {
+  if (!email) {
+    throw new Error("Email is required");
+  }
+
+  const normalizedEmail = email.toLowerCase().trim();
+  const user = await User.findOne({ email: normalizedEmail });
+
+  if (!user) {
+    throw new Error("User not found");
+  }
+
+  const code = String(Math.floor(100000 + Math.random() * 900000));
+  const codeHash = await bcrypt.hash(code, 10);
+
+  user.emailVerificationCodeHash = codeHash;
+  user.emailVerificationCodeExpiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
+  await user.save();
+
+  const subject = "Your verification code";
+  const text = `Your verification code is ${code}. It expires in 15 minutes.`;
+  const html = `<p>Your verification code is <strong>${code}</strong>.</p><p>It expires in 15 minutes.</p>`;
+
+  await sendMail({
+    to: normalizedEmail,
+    subject,
+    text,
+    html,
+  });
+
+  return {
+    message: "Verification code sent to email",
+    expiresIn: 15 * 60,
+  };
 };

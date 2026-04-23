@@ -77,6 +77,11 @@ const userSchema = new mongoose.Schema(
         lastActivityAt: Date,
       },
     ],
+    emailVerificationCodeHash: {
+      type: String,
+      select: false,
+    },
+    emailVerificationCodeExpiresAt: Date,
     lastLoginAt: Date,
     lastLogoutAt: Date,
   },
