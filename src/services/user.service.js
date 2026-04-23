@@ -44,7 +44,7 @@ export const createUserService = async (data) => {
     sessions: [],
   });
 
-  await user.save(); // 🔥 pre-save WILL run here
+  await user.save(); // pre-save WILL run here
 
   return user;
 };
