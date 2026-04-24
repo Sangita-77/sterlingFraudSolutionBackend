@@ -1,4 +1,5 @@
 import User from "../models/user.model.js";
+import Document from "../models/document.model.js";
 import bcrypt from "bcrypt";
 import { hashToken, generateSessionId, blacklistToken } from "./token.service.js";
 import { sendMail } from "./email.service.js";

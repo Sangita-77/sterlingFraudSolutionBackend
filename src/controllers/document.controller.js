@@ -1,4 +1,4 @@
-import { uploadDocumentService } from "../services/document.service.js";
+import { uploadDocumentService, getUserDocumentsService } from "../services/document.service.js";
 
 export const uploadDocument = async (req, res) => {
   try {
@@ -17,6 +17,21 @@ export const uploadDocument = async (req, res) => {
     const document = await uploadDocumentService(userId, documentType, file);
 
     res.json({ success: true, document });
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+};
+
+export const getUserDocuments = async (req, res) => {
+  try {
+    const userId = req.body.userId || req.userId;
+
+    if (!userId) {
+      return res.status(400).json({ message: "UserId is required" });
+    }
+
+    const documents = await getUserDocumentsService(userId);
+    res.json({ success: true, documents });
   } catch (error) {
     res.status(400).json({ message: error.message });
   }

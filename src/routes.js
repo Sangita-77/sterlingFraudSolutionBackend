@@ -12,7 +12,7 @@ import {
   getUserData,
   updateUser,
 } from "./controllers/user.controller.js";
-import { uploadDocument } from "./controllers/document.controller.js";
+import { uploadDocument, getUserDocuments } from "./controllers/document.controller.js";
 import {
   getAvailableLanguages,
   getUserLanguage,
@@ -54,6 +54,7 @@ router.post("/blockchain/address/tx" , getAddressTx);
 
 router.put("/update-user", authenticateToken , updateUser);
 router.post("/get-user-data", authenticateToken, getUserData);
-router.post("/upload-document", upload.single("file"), uploadDocument);
+router.post("/upload-document", authenticateToken, upload.single("file"), uploadDocument);
+router.post("/get-documents", authenticateToken, getUserDocuments);
 
 export default router;
