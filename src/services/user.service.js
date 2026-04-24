@@ -70,7 +70,7 @@ export const loginUserService = async (
   }
 
   // Check if user is active
-  if (user.status === 1) {
+  if (user.status === 0) {
     throw new Error("User account is deactivated");
   }
 
