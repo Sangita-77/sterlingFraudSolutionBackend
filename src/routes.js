@@ -8,6 +8,7 @@ import {
   getActiveSessions,
   sendCodeToMail,
   verifyOtp,
+  getUserData,
 } from "./controllers/user.controller.js";
 import {
   getAvailableLanguages,
@@ -47,5 +48,7 @@ router.post("/blockchain/address/all-txs", getAddressTokenAllTxs);
 router.post("/blockchain/address/all-tx-bounds", getAddressAllTxBounds);
 router.post("/blockchain/address/tx" , getAddressTx);
 
+
+router.post("/get-user-data", getUserData);
 
 export default router;
