@@ -7,6 +7,7 @@ import {
   refreshAccessToken,
   getActiveSessions,
   sendCodeToMail,
+  verifyOtp,
 } from "./controllers/user.controller.js";
 import {
   getAvailableLanguages,
@@ -28,6 +29,7 @@ router.post("/register", registerUser);
 router.post("/login", loginUser);
 router.post("/refresh-token", refreshAccessToken);
 router.post("/send-code", sendCodeToMail);
+router.post("/verify-otp", verifyOtp);
 
 // Protected routes
 router.post("/logout", authenticateToken, logoutUser);

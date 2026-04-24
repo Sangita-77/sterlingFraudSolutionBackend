@@ -4,6 +4,7 @@ import {
   logoutUserService,
   refreshAccessTokenService,
   sendCodeToMailService,
+  verifyOtpService,
 } from "../services/user.service.js";
 import { blacklistToken, hashToken } from "../services/token.service.js";
 import User from "../models/user.model.js";
@@ -214,6 +215,22 @@ export const sendCodeToMail = async (req, res) => {
     }
 
     const result = await sendCodeToMailService(email);
+
+    res.json({ success: true, ...result });
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+};
+
+export const verifyOtp = async (req, res) => {
+  try {
+    const { email, code } = req.body;
+
+    if (!email || !code) {
+      return res.status(400).json({ message: "Email and code are required" });
+    }
+
+    const result = await verifyOtpService(email, code);
 
     res.json({ success: true, ...result });
   } catch (error) {

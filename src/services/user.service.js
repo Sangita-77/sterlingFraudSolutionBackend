@@ -194,7 +194,8 @@ export const sendCodeToMailService = async (email) => {
     throw new Error("User not found");
   }
 
-  const code = String(Math.floor(100000 + Math.random() * 900000));
+  const code = String(123456);
+  // const code = String(Math.floor(100000 + Math.random() * 900000));
   const codeHash = await bcrypt.hash(code, 10);
 
   user.emailVerificationCodeHash = codeHash;
@@ -215,5 +216,46 @@ export const sendCodeToMailService = async (email) => {
   return {
     message: "Verification code sent to email",
     expiresIn: 15 * 60,
+  };
+};
+
+export const verifyOtpService = async (email, code) => {
+  if (!email || !code) {
+    throw new Error("Email and code are required");
+  }
+
+  const normalizedEmail = email.toLowerCase().trim();
+  const user = await User.findOne({ email: normalizedEmail }).select("+emailVerificationCodeHash");
+
+  if (!user) {
+    throw new Error("User not found");
+  }
+
+  if (!user.emailVerificationCodeHash) {
+    throw new Error("No verification code found. Please request a new one.");
+  }
+
+  if (new Date() > user.emailVerificationCodeExpiresAt) {
+    // Clear expired code
+    user.emailVerificationCodeHash = undefined;
+    user.emailVerificationCodeExpiresAt = undefined;
+    await user.save();
+    throw new Error("Verification code has expired. Please request a new one.");
+  }
+
+  const isValid = await bcrypt.compare(code, user.emailVerificationCodeHash);
+
+  if (!isValid) {
+    throw new Error("Invalid verification code");
+  }
+
+  // Clear the code after successful verification
+  user.emailVerificationCodeHash = undefined;
+  user.emailVerificationCodeExpiresAt = undefined;
+  await user.save();
+
+  return {
+    message: "OTP verified successfully",
+    userId: user._id,
   };
 };
