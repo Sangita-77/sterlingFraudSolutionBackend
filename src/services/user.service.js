@@ -260,6 +260,44 @@ export const verifyOtpService = async (email, code) => {
   };
 };
 
+export const updateUserService = async (userId, updates) => {
+  const user = await User.findById(userId).select("+password");
+
+  if (!user) {
+    throw new Error("User not found");
+  }
+
+  if (user.status !== 1) {
+    throw new Error("User account is not active");
+  }
+
+  const allowedFields = ["name", "phone", "company_name", "language", "activity", "password"];
+  const updateData = {};
+
+  allowedFields.forEach((field) => {
+    if (updates[field] !== undefined) {
+      updateData[field] = typeof updates[field] === "string" ? updates[field].trim() : updates[field];
+    }
+  });
+
+  if (Object.keys(updateData).length === 0) {
+    throw new Error("No valid fields provided for update");
+  }
+
+  if (updateData.name && updateData.name.length === 0) {
+    throw new Error("Name cannot be empty");
+  }
+
+  if (updateData.password && updateData.password.length < 6) {
+    throw new Error("Password must be at least 6 characters long");
+  }
+
+  Object.assign(user, updateData);
+  await user.save();
+
+  return user;
+};
+
 export const getUserDataService = async (userId) => {
   const user = await User.findById(userId);
 

@@ -9,6 +9,7 @@ import {
   sendCodeToMail,
   verifyOtp,
   getUserData,
+  updateUser,
 } from "./controllers/user.controller.js";
 import {
   getAvailableLanguages,
@@ -48,7 +49,7 @@ router.post("/blockchain/address/all-txs", getAddressTokenAllTxs);
 router.post("/blockchain/address/all-tx-bounds", getAddressAllTxBounds);
 router.post("/blockchain/address/tx" , getAddressTx);
 
-
+router.put("/update-user", authenticateToken , updateUser);
 router.post("/get-user-data", authenticateToken, getUserData);
 
 export default router;
