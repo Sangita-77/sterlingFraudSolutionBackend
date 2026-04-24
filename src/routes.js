@@ -49,6 +49,6 @@ router.post("/blockchain/address/all-tx-bounds", getAddressAllTxBounds);
 router.post("/blockchain/address/tx" , getAddressTx);
 
 
-router.post("/get-user-data", getUserData);
+router.post("/get-user-data", authenticateToken, getUserData);
 
 export default router;
