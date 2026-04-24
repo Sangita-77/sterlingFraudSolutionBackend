@@ -45,6 +45,7 @@ export const uploadDocumentService = async (userId, documentType, file) => {
     fileName,
     filePath,
     mimeType: file.mimetype,
+    status: 0, // pending
   });
 
   await document.save();

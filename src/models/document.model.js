@@ -24,6 +24,11 @@ const documentSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    status: {
+      type: Number,
+      default: 0, // 1 = approve, 0 = pending, 2 = reject
+      enum: [0, 1, 2],
+    },
     uploadedAt: {
       type: Date,
       default: Date.now,
