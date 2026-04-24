@@ -1,4 +1,5 @@
 import { Router } from "express";
+import multer from "multer";
 
 import {
   registerUser,
@@ -11,6 +12,7 @@ import {
   getUserData,
   updateUser,
 } from "./controllers/user.controller.js";
+import { uploadDocument } from "./controllers/document.controller.js";
 import {
   getAvailableLanguages,
   getUserLanguage,
@@ -23,6 +25,7 @@ import { authenticateToken, optionalAuth } from "./middlewares/auth.middleware.j
 
  
 const router = Router();
+const upload = multer({ storage: multer.memoryStorage() });
 
 
 
@@ -51,5 +54,6 @@ router.post("/blockchain/address/tx" , getAddressTx);
 
 router.put("/update-user", authenticateToken , updateUser);
 router.post("/get-user-data", authenticateToken, getUserData);
+router.post("/upload-document", upload.single("file"), uploadDocument);
 
 export default router;
