@@ -12,7 +12,11 @@ import {
   getUserData,
   updateUser,
 } from "./controllers/user.controller.js";
-import { uploadDocument, getUserDocuments } from "./controllers/document.controller.js";
+import { 
+  uploadDocument, 
+  getUserDocuments,
+  updateDocumentById,
+} from "./controllers/document.controller.js";
 import {
   getAvailableLanguages,
   getUserLanguage,
@@ -56,5 +60,7 @@ router.put("/update-user", authenticateToken , updateUser);
 router.post("/get-user-data", authenticateToken, getUserData);
 router.post("/upload-document", authenticateToken, upload.single("file"), uploadDocument);
 router.post("/get-documents", authenticateToken, getUserDocuments);
+router.put("/documents/:id", authenticateToken, upload.single("file"), updateDocumentById);
+router.post("/update-documents", authenticateToken, upload.single("file"), updateDocumentById);
 
 export default router;
