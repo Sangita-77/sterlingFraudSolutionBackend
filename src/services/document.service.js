@@ -66,3 +66,70 @@ export const getUserDocumentsService = async (userId) => {
         documents: documents,
     };
 };
+
+export const updateDocumentByIdService = async (documentId, updateData, userId) => {
+  if (!userId) {
+    throw new Error("User authentication required");
+  }
+
+  const document = await Document.findById(documentId);
+  if (!document) {
+    throw new Error("Document not found");
+  }
+
+  if (document.userId.toString() !== userId.toString()) {
+    throw new Error("Unauthorized to update this document");
+  }
+
+  if (updateData.documentType) {
+    const allowedTypes = ["passport", "national_id", "driving_license"];
+    if (!allowedTypes.includes(updateData.documentType)) {
+      throw new Error("Invalid document type. Allowed values: passport, national_id, driving_license");
+    }
+  }
+
+  if (typeof updateData.status !== "undefined") {
+    const allowedStatuses = [0, 1, 2];
+    if (!allowedStatuses.includes(updateData.status)) {
+      throw new Error("Invalid status. Allowed values: 0 (pending), 1 (approved), 2 (rejected)");
+    }
+  }
+
+  if (updateData.file) {
+    const file = updateData.file;
+    const allowedFileTypes = [
+      "application/pdf",
+      "image/jpeg",
+      "image/png",
+      "application/msword",
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    ];
+    if (!allowedFileTypes.includes(file.mimetype)) {
+      throw new Error("Invalid file type. Only PDF, JPEG, PNG, DOC, DOCX are allowed.");
+    }
+
+    const uploadDir = path.join(process.cwd(), "uploads", "documents");
+    if (!fs.existsSync(uploadDir)) {
+      fs.mkdirSync(uploadDir, { recursive: true });
+    }
+
+    if (document.filePath && fs.existsSync(document.filePath)) {
+      fs.unlinkSync(document.filePath);
+    }
+
+    const fileName = `${document.userId}_${updateData.documentType || document.documentType}_${Date.now()}_${file.originalname}`;
+    const filePath = path.join(uploadDir, fileName);
+    fs.writeFileSync(filePath, file.buffer);
+
+    updateData.fileName = fileName;
+    updateData.filePath = filePath;
+    updateData.mimeType = file.mimetype;
+    updateData.uploadedAt = new Date();
+    delete updateData.file;
+  }
+
+  Object.assign(document, updateData);
+  await document.save();
+
+  return document;
+};
