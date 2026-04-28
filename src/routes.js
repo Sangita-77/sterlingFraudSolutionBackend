@@ -11,6 +11,7 @@ import {
   verifyOtp,
   getUserData,
   updateUser,
+  addReport,
 } from "./controllers/user.controller.js";
 import { 
   uploadDocument, 
@@ -23,7 +24,13 @@ import {
   updateUserLanguage,
   detectUserLanguage,
 } from "./controllers/language.controller.js";
-import { getAddressTokenStats , getAddressTokenAllTxs , getAddressAllTxBounds,getAddressTx } from "./controllers/blockchain.controller.js";
+import {
+  getAddressTokenStats,
+  getAddressTokenAllTxs,
+  getAddressAllTxBounds,
+  getAddressTx,
+  getBitAddressOwnerDetails,
+} from "./controllers/blockchain.controller.js";
 import { authenticateToken, optionalAuth } from "./middlewares/auth.middleware.js";
 
 
@@ -55,6 +62,7 @@ router.post("/blockchain/address/token-stats", getAddressTokenStats);
 router.post("/blockchain/address/all-txs", getAddressTokenAllTxs);
 router.post("/blockchain/address/all-tx-bounds", getAddressAllTxBounds);
 router.post("/blockchain/address/tx" , getAddressTx);
+router.post("/blockchain/address/owner-details", getBitAddressOwnerDetails);
 
 router.put("/update-user", authenticateToken , updateUser);
 router.post("/get-user-data", authenticateToken, getUserData);
@@ -62,5 +70,7 @@ router.post("/upload-document", authenticateToken, upload.single("file"), upload
 router.post("/get-documents", authenticateToken, getUserDocuments);
 router.put("/documents/:id", authenticateToken, upload.single("file"), updateDocumentById);
 router.post("/update-documents", authenticateToken, upload.single("file"), updateDocumentById);
+
+router.post("/add-report", addReport);
 
 export default router;

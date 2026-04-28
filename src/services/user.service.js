@@ -1,5 +1,6 @@
 import User from "../models/user.model.js";
 import Document from "../models/document.model.js";
+import Report from "../models/report.model.js";
 import bcrypt from "bcrypt";
 import { hashToken, generateSessionId, blacklistToken } from "./token.service.js";
 import { sendMail } from "./email.service.js";
@@ -313,4 +314,21 @@ export const getUserDataService = async (userId) => {
   return {
     user: user,
   };
+};
+
+export const addReportService = async (userId, reportData) => {
+  const user = await User.findById(userId);
+
+  if (!user) {
+    throw new Error("User not found");
+  }
+
+  const report = new Report({
+    userId: user._id,
+    ...reportData
+  });
+
+  await report.save();
+
+  return report;
 };

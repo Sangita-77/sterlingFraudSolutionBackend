@@ -7,6 +7,7 @@ import {
   verifyOtpService,
   getUserDataService,
   updateUserService,
+  addReportService,
 } from "../services/user.service.js";
 import { blacklistToken, hashToken } from "../services/token.service.js";
 import User from "../models/user.model.js";
@@ -268,6 +269,23 @@ export const updateUser = async (req, res) => {
     const updatedUser = await updateUserService(userId, updates);
 
     res.json({ success: true, user: updatedUser });
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+};
+
+export const addReport = async (req, res) => {
+  try {
+    const userId = req.body.userId || req.userId;
+    const { bitcoinAddress, proposedOwnerType, fullName, email, description,email_received } = req.body;
+
+    if (!userId) {
+      return res.status(401).json({ message: "User not authenticated" });
+    }
+
+    const report = await addReportService(userId, { bitcoinAddress, proposedOwnerType, fullName, email, description, email_received });
+
+    res.json({ success: true, report });
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
