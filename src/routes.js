@@ -62,7 +62,7 @@ router.post("/blockchain/address/token-stats", getAddressTokenStats);
 router.post("/blockchain/address/all-txs", getAddressTokenAllTxs);
 router.post("/blockchain/address/all-tx-bounds", getAddressAllTxBounds);
 router.post("/blockchain/address/tx" , getAddressTx);
-router.post("/blockchain/address/owner-details", getBitAddressOwnerDetails);
+router.post("/blockchain/address/owner-details", authenticateToken , getBitAddressOwnerDetails);
 
 router.put("/update-user", authenticateToken , updateUser);
 router.post("/get-user-data", authenticateToken, getUserData);
