@@ -208,12 +208,12 @@ export const sendCodeToMailService = async (email) => {
   const text = `Your verification code is ${code}. It expires in 15 minutes.`;
   const html = `<p>Your verification code is <strong>${code}</strong>.</p><p>It expires in 15 minutes.</p>`;
 
-  await sendMail({
-    to: normalizedEmail,
-    subject,
-    text,
-    html,
-  });
+  // await sendMail({
+  //   to: normalizedEmail,
+  //   subject,
+  //   text,
+  //   html,
+  // });
 
   return {
     message: "Verification code sent to email",
