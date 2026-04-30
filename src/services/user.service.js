@@ -262,6 +262,44 @@ export const verifyOtpService = async (email, code) => {
   };
 };
 
+export const resetPasswordService = async (
+  email,
+  newPassword,
+  confirmPassword
+) => {
+  if (!email || !newPassword || !confirmPassword) {
+    throw new Error("Email, new password and confirm password are required");
+  }
+
+  const normalizedEmail = email.toLowerCase().trim();
+  const cleanPassword = newPassword.trim();
+  const cleanConfirmPassword = confirmPassword.trim();
+
+  if (cleanPassword.length < 6) {
+    throw new Error("Password must be at least 6 characters long");
+  }
+
+  if (cleanPassword !== cleanConfirmPassword) {
+    throw new Error("New password and confirm password do not match");
+  }
+
+  const user = await User.findOne({ email: normalizedEmail }).select(
+    "+password"
+  );
+
+  if (!user) {
+    throw new Error("User not found");
+  }
+
+  user.password = cleanPassword;
+  user.sessions = [];
+  await user.save();
+
+  return {
+    message: "Password reset successfully. Please login with your new credentials.",
+  };
+};
+
 export const updateUserService = async (userId, updates) => {
   const user = await User.findById(userId).select("+password");
 

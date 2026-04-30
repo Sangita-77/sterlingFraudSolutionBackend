@@ -8,6 +8,7 @@ import {
   getUserDataService,
   updateUserService,
   addReportService,
+  resetPasswordService,
 } from "../services/user.service.js";
 import { blacklistToken, hashToken } from "../services/token.service.js";
 import User from "../models/user.model.js";
@@ -236,6 +237,28 @@ export const verifyOtp = async (req, res) => {
     }
 
     const result = await verifyOtpService(email, code);
+
+    res.json({ success: true, ...result });
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+};
+
+export const resetPassword = async (req, res) => {
+  try {
+    const { email, newPassword, confirmPassword } = req.body;
+
+    if (!email || !newPassword || !confirmPassword) {
+      return res.status(400).json({
+        message: "Email, new password and confirm password are required",
+      });
+    }
+
+    const result = await resetPasswordService(
+      email,
+      newPassword,
+      confirmPassword
+    );
 
     res.json({ success: true, ...result });
   } catch (error) {

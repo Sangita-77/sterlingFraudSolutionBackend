@@ -9,6 +9,7 @@ import {
   getActiveSessions,
   sendCodeToMail,
   verifyOtp,
+  resetPassword,
   getUserData,
   updateUser,
   addReport,
@@ -46,6 +47,7 @@ router.post("/login", loginUser);
 router.post("/refresh-token", refreshAccessToken);
 router.post("/send-code", sendCodeToMail);
 router.post("/verify-otp", verifyOtp);
+router.post("/reset-password", resetPassword);
 
 // Protected routes
 router.post("/logout", authenticateToken, logoutUser);
