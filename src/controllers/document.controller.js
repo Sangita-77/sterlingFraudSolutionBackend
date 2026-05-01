@@ -1,4 +1,9 @@
-import { uploadDocumentService, getUserDocumentsService , updateDocumentByIdService } from "../services/document.service.js";
+import {
+  uploadDocumentService,
+  getUserDocumentsService,
+  updateDocumentByIdService,
+  uploadCaseDocumentService,
+} from "../services/document.service.js";
 
 export const uploadDocument = async (req, res) => {
   try {
@@ -55,6 +60,34 @@ export const updateDocumentById = async (req, res) => {
 
     const updatedDocument = await updateDocumentByIdService(documentId, updateData, userId);
     res.json({ success: true, document: updatedDocument });
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+};
+
+export const uploadCaseDocument = async (req, res) => {
+  try {
+    const userId = req.body.userId || req.userId;
+    const reportId = req.params.reportId || req.body.reportId;
+    const { documentType } = req.body;
+    const file = req.file;
+
+    if (!reportId) {
+      return res.status(400).json({ message: "Report id is required" });
+    }
+
+    if (!file) {
+      return res.status(400).json({ message: "File is required" });
+    }
+
+    const caseDocument = await uploadCaseDocumentService(
+      userId,
+      reportId,
+      file,
+      documentType
+    );
+
+    res.json({ success: true, caseDocument });
   } catch (error) {
     res.status(400).json({ message: error.message });
   }

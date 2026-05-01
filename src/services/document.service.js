@@ -1,7 +1,17 @@
 import Document from "../models/document.model.js";
+import CaseDocument from "../models/caseDocument.model.js";
+import Report from "../models/report.model.js";
 import User from "../models/user.model.js";
 import fs from "fs";
 import path from "path";
+
+const allowedDocumentFileTypes = [
+  "application/pdf",
+  "image/jpeg",
+  "image/png",
+  "application/msword",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+];
 
 export const uploadDocumentService = async (userId, documentType, file) => {
   // Validate user exists and is active
@@ -14,14 +24,7 @@ export const uploadDocumentService = async (userId, documentType, file) => {
   }
 
   // Validate file type
-  const allowedTypes = [
-    "application/pdf",
-    "image/jpeg",
-    "image/png",
-    "application/msword",
-    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-  ];
-  if (!allowedTypes.includes(file.mimetype)) {
+  if (!allowedDocumentFileTypes.includes(file.mimetype)) {
     throw new Error("Invalid file type. Only PDF, JPEG, PNG, DOC, DOCX are allowed.");
   }
 
@@ -97,14 +100,7 @@ export const updateDocumentByIdService = async (documentId, updateData, userId) 
 
   if (updateData.file) {
     const file = updateData.file;
-    const allowedFileTypes = [
-      "application/pdf",
-      "image/jpeg",
-      "image/png",
-      "application/msword",
-      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-    ];
-    if (!allowedFileTypes.includes(file.mimetype)) {
+    if (!allowedDocumentFileTypes.includes(file.mimetype)) {
       throw new Error("Invalid file type. Only PDF, JPEG, PNG, DOC, DOCX are allowed.");
     }
 
@@ -132,4 +128,79 @@ export const updateDocumentByIdService = async (documentId, updateData, userId) 
   await document.save();
 
   return document;
+};
+
+export const uploadCaseDocumentService = async (
+  userId,
+  reportId,
+  file,
+  documentType = "supporting_document"
+) => {
+  if (!userId) {
+    throw new Error("User authentication required");
+  }
+
+  if (!reportId) {
+    throw new Error("Report id is required");
+  }
+
+  if (!file) {
+    throw new Error("File is required");
+  }
+
+  const user = await User.findById(userId);
+  if (!user) {
+    throw new Error("User not found");
+  }
+
+  if (user.status !== 1) {
+    throw new Error("User account is not active");
+  }
+
+  const report = await Report.findById(reportId);
+  if (!report) {
+    throw new Error("Report not found");
+  }
+
+  if (report.userId.toString() !== userId.toString()) {
+    throw new Error("Unauthorized to upload documents for this report");
+  }
+
+  if (!allowedDocumentFileTypes.includes(file.mimetype)) {
+    throw new Error("Invalid file type. Only PDF, JPEG, PNG, DOC, DOCX are allowed.");
+  }
+
+  const uploadDir = path.join(process.cwd(), "uploads", "case-documents");
+  if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir, { recursive: true });
+  }
+
+  const cleanDocumentType =
+    typeof documentType === "string" && documentType.trim()
+      ? documentType.trim()
+      : "supporting_document";
+  const fileName = `${reportId}_${userId}_${cleanDocumentType}_${Date.now()}_${file.originalname}`;
+  const filePath = path.join(uploadDir, fileName);
+
+  fs.writeFileSync(filePath, file.buffer);
+
+  const caseDocument = new CaseDocument({
+    reportId,
+    userId,
+    documentType: cleanDocumentType,
+    fileName,
+    originalName: file.originalname,
+    filePath,
+    mimeType: file.mimetype,
+    status: 0,
+  });
+
+  await caseDocument.save();
+
+  if (report.status !== 4) {
+    report.status = 4;
+    await report.save();
+  }
+
+  return caseDocument;
 };
