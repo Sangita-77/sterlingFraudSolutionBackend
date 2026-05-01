@@ -73,7 +73,7 @@ router.post("/upload-document", authenticateToken, upload.single("file"), upload
 router.post("/get-documents", authenticateToken, getUserDocuments);
 router.put("/documents/:id", authenticateToken, upload.single("file"), updateDocumentById);
 router.post("/update-documents", authenticateToken, upload.single("file"), updateDocumentById);
-router.post("/reports/supporting-documents", upload.single("file"), uploadCaseDocument);
+router.post("/reports/supporting-documents", authenticateToken , upload.single("file"), uploadCaseDocument);
 
 router.post("/add-report", addReport);
 
