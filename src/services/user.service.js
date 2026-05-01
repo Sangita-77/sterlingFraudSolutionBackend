@@ -291,6 +291,12 @@ export const resetPasswordService = async (
     throw new Error("User not found");
   }
 
+  const isExistingPassword = await user.comparePassword(cleanPassword);
+
+  if (isExistingPassword) {
+    throw new Error("New password cannot be the same as the existing password");
+  }
+
   user.password = cleanPassword;
   user.sessions = [];
   await user.save();
