@@ -95,6 +95,13 @@ export const loginUser = async (req, res) => {
         email: user.email,
         flag: user.flag,
         status: user.status,
+        gender: user.gender,
+        address: user.address,
+        city: user.city,
+        state: user.state,
+        zip: user.zip,
+        phone: user.phone,
+        company_name: user.company_name,
       },
     });
   } catch (error) {

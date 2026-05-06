@@ -52,11 +52,33 @@ const userSchema = new mongoose.Schema(
       trim: true,
     },
     
-    // country: {
-    //   type: String,
-    //   required: true,
-    //   trim: true,
-    // },
+    gender: {
+      type: String,
+      required: true,
+      enum: ["male", "female", "other"],
+    },
+
+    address: {
+      type: String,
+      required: false,
+      trim: true,
+    },
+
+    city: {
+      type: String,
+      required: false,
+      trim: true,
+    },
+    state: {
+      type: String,
+      required: false,
+      trim: true,
+    },
+    zip: {
+      type: String,
+      required: false,
+      trim: true,
+    },
 
     activity: {
       type: String,

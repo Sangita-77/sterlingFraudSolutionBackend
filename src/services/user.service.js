@@ -16,12 +16,28 @@ export const createUserService = async (data) => {
     activity,
     phone,
     company_name,
+    gender,
+    address,
+    city,
+    state,
+    zip,
     status,
     flag,
   } = data;
 
-  if (!name || !email || !password || !activity) {
-    throw new Error("Required fields are missing");
+  if (!name || !email || !password || !activity || !gender) {
+    throw new Error("Required fields are missing check name, email, password, activity and gender and try again");
+  }
+
+  if (typeof gender !== "string") {
+    throw new Error("Gender must be male, female, or other");
+  }
+
+  const normalizedGender = gender.trim().toLowerCase();
+  const allowedGenders = ["male", "female", "other"];
+
+  if (!allowedGenders.includes(normalizedGender)) {
+    throw new Error("Gender must be male, female, or other");
   }
 
   const normalizedEmail = email.toLowerCase().trim();
@@ -40,8 +56,13 @@ export const createUserService = async (data) => {
     userIp,
     detectedCountry,
     activity: activity.trim(),
-    phone,
-    company_name,
+    phone: typeof phone === "string" ? phone.trim() : phone,
+    company_name: typeof company_name === "string" ? company_name.trim() : company_name,
+    gender: normalizedGender,
+    address: typeof address === "string" ? address.trim() : address,
+    city: typeof city === "string" ? city.trim() : city,
+    state: typeof state === "string" ? state.trim() : state,
+    zip: typeof zip === "string" ? zip.trim() : zip,
     status: status !== undefined ? status : 1,
     flag: flag !== undefined ? flag : 2,
     sessions: [],
@@ -317,7 +338,19 @@ export const updateUserService = async (userId, updates) => {
     throw new Error("User account is not active");
   }
 
-  const allowedFields = ["name", "phone", "company_name", "language", "activity", "password"];
+  const allowedFields = [
+    "name",
+    "phone",
+    "company_name",
+    "language",
+    "activity",
+    "password",
+    "gender",
+    "address",
+    "city",
+    "state",
+    "zip",
+  ];
   const updateData = {};
 
   allowedFields.forEach((field) => {
@@ -336,6 +369,15 @@ export const updateUserService = async (userId, updates) => {
 
   if (updateData.password && updateData.password.length < 6) {
     throw new Error("Password must be at least 6 characters long");
+  }
+
+  if (updateData.gender) {
+    updateData.gender = updateData.gender.toLowerCase();
+    const allowedGenders = ["male", "female", "other"];
+
+    if (!allowedGenders.includes(updateData.gender)) {
+      throw new Error("Gender must be male, female, or other");
+    }
   }
 
   Object.assign(user, updateData);
