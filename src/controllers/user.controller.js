@@ -6,6 +6,7 @@ import {
   sendCodeToMailService,
   verifyOtpService,
   getUserDataService,
+  getCreatedUpdatedUserDataService,
   updateUserService,
   addReportService,
   resetPasswordService,
@@ -304,6 +305,22 @@ export const getUserData = async (req, res) => {
     }
 
     const user = await getUserDataService(userId);
+
+    res.json({ success: true, user });
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+};
+
+export const getCreatedUpdatedUserData = async (req, res) => {
+  try {
+    const userId = req.body.userId || req.userId;
+
+    if (!userId) {
+      return res.status(401).json({ message: "User not authenticated" });
+    }
+
+    const user = await getCreatedUpdatedUserDataService(userId);
 
     res.json({ success: true, user });
   } catch (error) {

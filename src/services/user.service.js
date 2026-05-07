@@ -9,6 +9,17 @@ import path from "path";
 
 const allowedProfileImageTypes = ["image/jpeg", "image/png", "image/webp"];
 
+const formatUserData = (user) => {
+  const userData = user.toObject ? user.toObject() : { ...user };
+
+  delete userData.password;
+  delete userData.sessions;
+  delete userData.emailVerificationCodeHash;
+  delete userData.emailVerificationCodeExpiresAt;
+
+  return userData;
+};
+
 const saveProfileImage = (userId, file, existingFilePath = null) => {
   if (!file) {
     return null;
@@ -440,6 +451,20 @@ export const updateUserService = async (userId, updates) => {
   await user.save();
 
   return user;
+};
+
+export const getCreatedUpdatedUserDataService = async (userId) => {
+  const user = await User.findById(userId);
+
+  if (!user) {
+    throw new Error("User not found");
+  }
+
+  if (user.status !== 1) {
+    throw new Error("User account is not active");
+  }
+
+  return formatUserData(user);
 };
 
 export const getUserDataService = async (userId) => {
