@@ -14,6 +14,26 @@ import { blacklistToken, hashToken } from "../services/token.service.js";
 import User from "../models/user.model.js";
 import jwt from "jsonwebtoken";
 
+const getProfileImageFile = (req) => {
+  if (req.file) {
+    return req.file;
+  }
+
+  if (!Array.isArray(req.files)) {
+    return null;
+  }
+
+  const allowedFieldNames = [
+    "profileImage",
+    "profile_image",
+    "image",
+    "avatar",
+    "file",
+  ];
+
+  return req.files.find((file) => allowedFieldNames.includes(file.fieldname)) || null;
+};
+
 export const registerUser = async (req, res) => {
   try {
     // Add detected language and IP to user data
@@ -22,6 +42,7 @@ export const registerUser = async (req, res) => {
       language: req.body.language || req.detectedLanguage,
       userIp: req.userIp,
       detectedCountry: req.geoData?.country,
+      profileImageFile: getProfileImageFile(req),
     };
 
     // return console.log("User data to be saved:", userData);
@@ -102,6 +123,7 @@ export const loginUser = async (req, res) => {
         zip: user.zip,
         phone: user.phone,
         company_name: user.company_name,
+        profileImage: user.profileImage,
       },
     });
   } catch (error) {
@@ -297,7 +319,10 @@ export const updateUser = async (req, res) => {
       return res.status(401).json({ message: "User not authenticated" });
     }
 
-    const updates = req.body;
+    const updates = {
+      ...req.body,
+      profileImageFile: getProfileImageFile(req),
+    };
     const updatedUser = await updateUserService(userId, updates);
 
     res.json({ success: true, user: updatedUser });

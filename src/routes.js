@@ -43,7 +43,7 @@ const upload = multer({ storage: multer.memoryStorage() });
 
 
 // Public routes
-router.post("/register", registerUser);
+router.post("/register", upload.any(), registerUser);
 router.post("/login", loginUser);
 router.post("/refresh-token", refreshAccessToken);
 router.post("/send-code", sendCodeToMail);
@@ -67,7 +67,7 @@ router.post("/blockchain/address/all-tx-bounds", getAddressAllTxBounds);
 router.post("/blockchain/address/tx" , getAddressTx);
 router.post("/blockchain/address/owner-details", authenticateToken , getBitAddressOwnerDetails);
 
-router.put("/update-user", authenticateToken , updateUser);
+router.put("/update-user", authenticateToken, upload.any(), updateUser);
 router.post("/get-user-data", authenticateToken, getUserData);
 router.post("/upload-document", authenticateToken, upload.single("file"), uploadDocument);
 router.post("/get-documents", authenticateToken, getUserDocuments);

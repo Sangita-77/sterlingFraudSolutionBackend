@@ -4,6 +4,47 @@ import Report from "../models/report.model.js";
 import bcrypt from "bcrypt";
 import { hashToken, generateSessionId, blacklistToken } from "./token.service.js";
 import { sendMail } from "./email.service.js";
+import fs from "fs";
+import path from "path";
+
+const allowedProfileImageTypes = ["image/jpeg", "image/png", "image/webp"];
+
+const saveProfileImage = (userId, file, existingFilePath = null) => {
+  if (!file) {
+    return null;
+  }
+
+  if (!allowedProfileImageTypes.includes(file.mimetype)) {
+    throw new Error("Invalid profile image type. Only JPEG, PNG, and WEBP are allowed.");
+  }
+
+  const uploadDir = path.join(process.cwd(), "uploads", "profile-images");
+  if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir, { recursive: true });
+  }
+
+  if (existingFilePath && fs.existsSync(existingFilePath)) {
+    fs.unlinkSync(existingFilePath);
+  }
+
+  const safeOriginalName = path
+    .basename(file.originalname || "profile-image")
+    .replace(/[^a-zA-Z0-9._-]/g, "_");
+  const fileName = `${userId}_${Date.now()}_${safeOriginalName}`;
+  const filePath = path.join(uploadDir, fileName);
+
+  fs.writeFileSync(filePath, file.buffer);
+
+  return {
+    fileName,
+    originalName: file.originalname,
+    filePath,
+    mimeType: file.mimetype,
+    size: file.size,
+    url: `/uploads/profile-images/${fileName}`,
+    uploadedAt: new Date(),
+  };
+};
 
 export const createUserService = async (data) => {
   const {
@@ -23,6 +64,7 @@ export const createUserService = async (data) => {
     zip,
     status,
     flag,
+    profileImageFile,
   } = data;
 
   if (!name || !email || !password || !activity || !gender) {
@@ -67,6 +109,10 @@ export const createUserService = async (data) => {
     flag: flag !== undefined ? flag : 2,
     sessions: [],
   });
+
+  if (profileImageFile) {
+    user.profileImage = saveProfileImage(user._id, profileImageFile);
+  }
 
   await user.save(); // pre-save WILL run here
 
@@ -360,7 +406,9 @@ export const updateUserService = async (userId, updates) => {
   });
 
   if (Object.keys(updateData).length === 0) {
-    throw new Error("No valid fields provided for update");
+    if (!updates.profileImageFile) {
+      throw new Error("No valid fields provided for update");
+    }
   }
 
   if (updateData.name && updateData.name.length === 0) {
@@ -378,6 +426,14 @@ export const updateUserService = async (userId, updates) => {
     if (!allowedGenders.includes(updateData.gender)) {
       throw new Error("Gender must be male, female, or other");
     }
+  }
+
+  if (updates.profileImageFile) {
+    user.profileImage = saveProfileImage(
+      user._id,
+      updates.profileImageFile,
+      user.profileImage?.filePath
+    );
   }
 
   Object.assign(user, updateData);

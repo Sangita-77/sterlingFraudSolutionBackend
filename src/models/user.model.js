@@ -51,6 +51,15 @@ const userSchema = new mongoose.Schema(
       required: false,
       trim: true,
     },
+    profileImage: {
+      fileName: String,
+      originalName: String,
+      filePath: String,
+      mimeType: String,
+      size: Number,
+      url: String,
+      uploadedAt: Date,
+    },
     
     gender: {
       type: String,
