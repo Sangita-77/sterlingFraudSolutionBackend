@@ -15,8 +15,28 @@ export const uploadDocument = async (req, res) => {
       return res.status(400).json({ message: "File is required" });
     }
 
-    if (!documentType || !["passport", "national_id", "driving_license"].includes(documentType)) {
-      return res.status(400).json({ message: "Valid document type is required (passport, national_id, driving_license)" });
+    // if (!documentType || !["passport", "national_id", "driving_license"].includes(documentType)) {
+    //   return res.status(400).json({ message: "Valid document type is required (passport, national_id, driving_license)" });
+    // }
+
+    const allowedDocumentTypes = [
+      "passport_front",
+      "passport_back",
+      "passport_selfie",
+
+      "national_id_front",
+      "national_id_back",
+      "national_id_selfie",
+
+      "driving_license_front",
+      "driving_license_back",
+      "driving_license_selfie",
+    ];
+
+    if (!documentType || !allowedDocumentTypes.includes(documentType)) {
+      return res.status(400).json({
+        message: "Valid document type is required",
+      });
     }
 
     const document = await uploadDocumentService(userId, documentType, file);

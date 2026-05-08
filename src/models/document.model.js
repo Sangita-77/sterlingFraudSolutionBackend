@@ -9,7 +9,19 @@ const documentSchema = new mongoose.Schema(
     },
     documentType: {
       type: String,
-      enum: ["passport", "national_id", "driving_license"],
+      enum: [
+        "passport_front",
+        "passport_back",
+        "passport_selfie",
+
+        "national_id_front",
+        "national_id_back",
+        "national_id_selfie",
+
+        "driving_license_front",
+        "driving_license_back",
+        "driving_license_selfie",
+      ],
       required: true,
     },
     fileName: {

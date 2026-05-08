@@ -85,9 +85,22 @@ export const updateDocumentByIdService = async (documentId, updateData, userId) 
   }
 
   if (updateData.documentType) {
-    const allowedTypes = ["passport", "national_id", "driving_license"];
+    // const allowedTypes = ["passport", "national_id", "driving_license"];
+    const allowedTypes = [
+      "passport_front",
+      "passport_back",
+      "passport_selfie",
+
+      "national_id_front",
+      "national_id_back",
+      "national_id_selfie",
+
+      "driving_license_front",
+      "driving_license_back",
+      "driving_license_selfie",
+    ];
     if (!allowedTypes.includes(updateData.documentType)) {
-      throw new Error("Invalid document type. Allowed values: passport, national_id, driving_license");
+      throw new Error("Invalid document type. Allowed values: passport, national_id, driving_license {_front, _back, _selfie}");
     }
   }
 
@@ -99,6 +112,7 @@ export const updateDocumentByIdService = async (documentId, updateData, userId) 
   }
 
   if (updateData.file) {
+    updateData.status = 0;
     const file = updateData.file;
     if (!allowedDocumentFileTypes.includes(file.mimetype)) {
       throw new Error("Invalid file type. Only PDF, JPEG, PNG, DOC, DOCX are allowed.");
