@@ -499,3 +499,16 @@ export const addReportService = async (userId, reportData) => {
 
   return report;
 };
+
+export const getAllUserDataService = async () => {
+  // const user = await User.all();
+  const user = await User.find({});
+
+  if (!user) {
+    throw new Error("User not found");
+  }
+
+  return {
+    user: user,
+  };
+};

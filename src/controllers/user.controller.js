@@ -10,6 +10,7 @@ import {
   updateUserService,
   addReportService,
   resetPasswordService,
+  getAllUserDataService,
 } from "../services/user.service.js";
 import { blacklistToken, hashToken } from "../services/token.service.js";
 import User from "../models/user.model.js";
@@ -360,6 +361,17 @@ export const addReport = async (req, res) => {
     const report = await addReportService(userId, { bitcoinAddress, proposedOwnerType, fullName, email, description, email_received });
 
     res.json({ success: true, report });
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+};
+
+export const getAllUserData = async (req, res) => {
+  try {
+
+    const user = await getAllUserDataService();
+
+    res.json({ success: true, user });
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
