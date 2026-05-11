@@ -500,59 +500,84 @@ export const addReportService = async (userId, reportData) => {
   return report;
 };
 
-export const getAllUserDataService = async ({ page, limit, flag }) => {
-  const currentPage =
-    Number(page) || 1;
+export const getAllUserDataService = async ({page,limit,flag,status,sortBy,sortOrder}) => {
+    const currentPage =
+      Number(page) || 1;
 
-  const perPage =
-    Number(limit) || 10;
+    const perPage =
+      Number(limit) || 10;
 
-  const skip =
-    (currentPage - 1) * perPage;
+    const skip =
+      (currentPage - 1) * perPage;
 
-  // filter
-  const query = {};
+    // filters
+    const query = {};
 
-  // filter against flag
-  if (
-    flag !== undefined &&
-    flag !== null &&
-    flag !== ""
-  ) {
-    query.flag = Number(flag);
-  }
+    // flag filter
+    if (
+      flag !== undefined &&
+      flag !== null &&
+      flag !== ""
+    ) {
+      query.flag = Number(flag);
+    }
 
-  const users = await User.find(query)
-    .select(
-      "-password -sessions -refreshToken -profileImage"
-    )
-    .sort({ createdAt: -1 })
-    .skip(skip)
-    .limit(perPage);
+    // status filter
+    if (
+      status !== undefined &&
+      status !== null &&
+      status !== ""
+    ) {
+      query.status = Number(status);
+    }
 
-  const totalUsers =
-    await User.countDocuments(query);
+    // sorting
+    let sortQuery = {
+      createdAt: -1,
+    };
 
-  return {
-    users,
-    pagination: {
-      total: totalUsers,
-      page: currentPage,
-      limit: perPage,
-      totalPages: Math.ceil(
-        totalUsers / perPage
-      ),
-    },
-  };
+    const allowedSortFields = [
+      "name",
+      "detectedCountry",
+    ];
+
+    if (
+      sortBy &&
+      allowedSortFields.includes(sortBy)
+    ) {
+      sortQuery = {
+        [sortBy]:
+          sortOrder === "desc" ? -1 : 1,
+      };
+    }
+
+    const users = await User.find(query)
+      .select(
+        "-password -sessions -refreshToken -profileImage"
+      )
+      .sort(sortQuery)
+      .skip(skip)
+      .limit(perPage);
+
+    const totalUsers =
+      await User.countDocuments(query);
+
+    return {
+      users,
+      pagination: {
+        total: totalUsers,
+        page: currentPage,
+        limit: perPage,
+        totalPages: Math.ceil(
+          totalUsers / perPage
+        ),
+      },
+    };
 };
 
 
 
-export const searchUsersService = async ({
-  search,
-  page,
-  limit,
-}) => {
+export const searchUsersService = async ({search,page,limit}) => {
   const currentPage = Number(page) || 1;
   const perPage = Number(limit) || 10;
 

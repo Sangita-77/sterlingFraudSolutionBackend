@@ -367,12 +367,15 @@ export const addReport = async (req, res) => {
   }
 };
 
-export const getAllUserData = async ( req , res) => {
+export const getAllUserData = async ( req, res) => {
   try {
     const {
       page = 1,
       limit = 10,
       flag,
+      status,
+      sortBy,
+      sortOrder = "asc",
     } = req.body;
 
     const users =
@@ -380,6 +383,9 @@ export const getAllUserData = async ( req , res) => {
         page,
         limit,
         flag,
+        status,
+        sortBy,
+        sortOrder,
       });
 
     res.json({
