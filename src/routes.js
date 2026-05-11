@@ -16,6 +16,7 @@ import {
   addReport,
   getAllUserData,
   searchUsers,
+  deleteUsers,
 } from "./controllers/user.controller.js";
 import { 
   uploadDocument, 
@@ -83,5 +84,6 @@ router.post("/add-report", addReport);
 
 router.post("/get-all-users", authenticateToken, getAllUserData);
 router.post("/search-users", authenticateToken, searchUsers);
+router.delete("/delete-users", authenticateToken , deleteUsers);
 
 export default router;

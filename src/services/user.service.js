@@ -638,3 +638,47 @@ export const searchUsersService = async ({search,page,limit}) => {
     },
   };
 };
+
+export const deleteUsersService = async ({ userId, userIds }) => {
+    if (userId) {
+      const deletedUser =
+        await User.findByIdAndDelete(
+          userId
+        );
+
+      if (!deletedUser) {
+        throw new Error(
+          "User not found"
+        );
+      }
+
+      return {
+        message:
+          "User deleted successfully",
+        deletedCount: 1,
+      };
+    }
+
+    if (
+      Array.isArray(userIds) &&
+      userIds.length > 0
+    ) {
+      const result =
+        await User.deleteMany({
+          _id: {
+            $in: userIds,
+          },
+        });
+
+      return {
+        message:
+          "Users deleted successfully",
+        deletedCount:
+          result.deletedCount,
+      };
+    }
+
+    throw new Error(
+      "userId or userIds is required"
+    );
+  };

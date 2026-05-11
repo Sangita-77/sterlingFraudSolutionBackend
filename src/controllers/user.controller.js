@@ -12,6 +12,7 @@ import {
   resetPasswordService,
   getAllUserDataService,
   searchUsersService,
+  deleteUsersService,
 } from "../services/user.service.js";
 import { blacklistToken, hashToken } from "../services/token.service.js";
 import User from "../models/user.model.js";
@@ -369,24 +370,10 @@ export const addReport = async (req, res) => {
 
 export const getAllUserData = async ( req, res) => {
   try {
-    const {
-      page = 1,
-      limit = 10,
-      flag,
-      status,
-      sortBy,
-      sortOrder = "asc",
-    } = req.body;
+    const {page = 1,limit = 10,flag,status,sortBy,sortOrder = "asc"} = req.body;
 
     const users =
-      await getAllUserDataService({
-        page,
-        limit,
-        flag,
-        status,
-        sortBy,
-        sortOrder,
-      });
+      await getAllUserDataService({page,limit,flag,status,sortBy,sortOrder});
 
     res.json({
       success: true,
@@ -402,11 +389,7 @@ export const getAllUserData = async ( req, res) => {
 
 export const searchUsers = async (req, res) => {
   try {
-    const {
-      search = "",
-      page = 1,
-      limit = 10,
-    } = req.body;
+    const {search = "", page = 1, limit = 10} = req.body;
 
     const result = await searchUsersService({
       search,
@@ -417,6 +400,30 @@ export const searchUsers = async (req, res) => {
     res.json({
       success: true,
       ...result,
+    });
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+export const deleteUsers = async ( req , res ) => {
+  try {
+    const { userId, userIds } = req.body;
+
+    const result =
+      await deleteUsersService({
+        userId,
+        userIds,
+      });
+
+    res.json({
+      success: true,
+      message: result.message,
+      deletedCount:
+        result.deletedCount,
     });
   } catch (error) {
     res.status(400).json({
