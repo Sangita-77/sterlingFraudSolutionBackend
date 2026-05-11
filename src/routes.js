@@ -75,13 +75,13 @@ router.get("/user-data", authenticateToken, getCreatedUpdatedUserData);
 router.post("/get-user-data", authenticateToken, getUserData);
 router.post("/upload-document", authenticateToken, upload.single("file"), uploadDocument);
 router.post("/get-documents", authenticateToken, getUserDocuments);
-router.get("/get-all-users", authenticateToken, getAllUserData);
 router.put("/documents/:id", authenticateToken, upload.single("file"), updateDocumentById);
 router.post("/update-documents", authenticateToken, upload.single("file"), updateDocumentById);
 router.post("/reports/supporting-documents", authenticateToken , upload.single("file"), uploadCaseDocument);
 
 router.post("/add-report", addReport);
 
+router.get("/get-all-users", getAllUserData);
 router.post("/search-users", searchUsers);
 
 export default router;

@@ -500,16 +500,49 @@ export const addReportService = async (userId, reportData) => {
   return report;
 };
 
-export const getAllUserDataService = async () => {
-  // const user = await User.all();
-  const user = await User.find({});
+export const getAllUserDataService = async ({ page, limit, flag }) => {
+  const currentPage =
+    Number(page) || 1;
 
-  if (!user) {
-    throw new Error("User not found");
+  const perPage =
+    Number(limit) || 10;
+
+  const skip =
+    (currentPage - 1) * perPage;
+
+  // filter
+  const query = {};
+
+  // filter against flag
+  if (
+    flag !== undefined &&
+    flag !== null &&
+    flag !== ""
+  ) {
+    query.flag = Number(flag);
   }
 
+  const users = await User.find(query)
+    .select(
+      "-password -sessions -refreshToken -profileImage"
+    )
+    .sort({ createdAt: -1 })
+    .skip(skip)
+    .limit(perPage);
+
+  const totalUsers =
+    await User.countDocuments(query);
+
   return {
-    user: user,
+    users,
+    pagination: {
+      total: totalUsers,
+      page: currentPage,
+      limit: perPage,
+      totalPages: Math.ceil(
+        totalUsers / perPage
+      ),
+    },
   };
 };
 

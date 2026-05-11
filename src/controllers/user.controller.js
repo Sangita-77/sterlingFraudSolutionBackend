@@ -367,17 +367,32 @@ export const addReport = async (req, res) => {
   }
 };
 
-export const getAllUserData = async (req, res) => {
+export const getAllUserData = async ( req , res) => {
   try {
+    const {
+      page = 1,
+      limit = 10,
+      flag,
+    } = req.body;
 
-    const user = await getAllUserDataService();
+    const users =
+      await getAllUserDataService({
+        page,
+        limit,
+        flag,
+      });
 
-    res.json({ success: true, user });
+    res.json({
+      success: true,
+      ...users,
+    });
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    res.status(400).json({
+      success: false,
+      message: error.message,
+    });
   }
 };
-
 
 export const searchUsers = async (req, res) => {
   try {
