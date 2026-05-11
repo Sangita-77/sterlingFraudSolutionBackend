@@ -81,7 +81,7 @@ router.post("/reports/supporting-documents", authenticateToken , upload.single("
 
 router.post("/add-report", addReport);
 
-router.get("/get-all-users", getAllUserData);
-router.post("/search-users", searchUsers);
+router.post("/get-all-users", authenticateToken, getAllUserData);
+router.post("/search-users", authenticateToken, searchUsers);
 
 export default router;
