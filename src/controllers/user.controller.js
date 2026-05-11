@@ -11,6 +11,7 @@ import {
   addReportService,
   resetPasswordService,
   getAllUserDataService,
+  searchUsersService,
 } from "../services/user.service.js";
 import { blacklistToken, hashToken } from "../services/token.service.js";
 import User from "../models/user.model.js";
@@ -374,5 +375,32 @@ export const getAllUserData = async (req, res) => {
     res.json({ success: true, user });
   } catch (error) {
     res.status(400).json({ message: error.message });
+  }
+};
+
+
+export const searchUsers = async (req, res) => {
+  try {
+    const {
+      search = "",
+      page = 1,
+      limit = 10,
+    } = req.body;
+
+    const result = await searchUsersService({
+      search,
+      page,
+      limit,
+    });
+
+    res.json({
+      success: true,
+      ...result,
+    });
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      message: error.message,
+    });
   }
 };

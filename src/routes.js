@@ -15,6 +15,7 @@ import {
   updateUser,
   addReport,
   getAllUserData,
+  searchUsers,
 } from "./controllers/user.controller.js";
 import { 
   uploadDocument, 
@@ -80,5 +81,7 @@ router.post("/update-documents", authenticateToken, upload.single("file"), updat
 router.post("/reports/supporting-documents", authenticateToken , upload.single("file"), uploadCaseDocument);
 
 router.post("/add-report", addReport);
+
+router.post("/search-users", searchUsers);
 
 export default router;

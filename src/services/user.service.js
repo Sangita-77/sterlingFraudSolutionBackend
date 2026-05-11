@@ -512,3 +512,71 @@ export const getAllUserDataService = async () => {
     user: user,
   };
 };
+
+
+
+export const searchUsersService = async ({
+  search,
+  page,
+  limit,
+}) => {
+  const currentPage = Number(page) || 1;
+  const perPage = Number(limit) || 10;
+
+  const skip =
+    (currentPage - 1) * perPage;
+
+  const searchQuery = search
+    ? {
+        $or: [
+          {
+            name: {
+              $regex: search,
+              $options: "i",
+            },
+          },
+          {
+            email: {
+              $regex: search,
+              $options: "i",
+            },
+          },
+          {
+            detectedCountry: {
+              $regex: search,
+              $options: "i",
+            },
+          },
+          {
+            phone: {
+              $regex: search,
+              $options: "i",
+            },
+          },
+        ],
+      }
+    : {};
+
+  const users = await User.find(searchQuery)
+    .select(
+      "-password -sessions -refreshToken -profileImage"
+    )
+    .sort({ createdAt: -1 })
+    .skip(skip)
+    .limit(perPage);
+
+  const totalUsers =
+    await User.countDocuments(searchQuery);
+
+  return {
+    users,
+    pagination: {
+      total: totalUsers,
+      page: currentPage,
+      limit: perPage,
+      totalPages: Math.ceil(
+        totalUsers / perPage
+      ),
+    },
+  };
+};
