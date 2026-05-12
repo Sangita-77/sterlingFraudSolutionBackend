@@ -17,17 +17,25 @@ import path from "path";
 
 const app = express();
 
-
-
-app.use(helmet());
-
-
+app.use(
+  helmet({
+    crossOriginResourcePolicy: { policy: "cross-origin" },
+  })
+);
 
 app.use(cors());
 
 app.use(express.json());
 
-app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
+app.use(
+  "/uploads",
+  express.static(path.join(process.cwd(), "uploads"), {
+    setHeaders: (res) => {
+      res.setHeader("Access-Control-Allow-Origin", "*");
+      res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
+    },
+  })
+);
 
 // Apply language detection middleware globally
 app.use(languageDetectionMiddleware);
