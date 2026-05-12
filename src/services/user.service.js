@@ -604,50 +604,34 @@ export const addReportService = async (userId, reportData) => {
 };
 
 export const getAllUserDataService = async ({page,limit,flag,status,sortBy,sortOrder}) => {
-    const currentPage =
-      Number(page) || 1;
+    const currentPage = Number(page) || 1;
 
-    const perPage =
-      Number(limit) || 10;
+    const perPage = Number(limit) || 10;
 
-    const skip =
-      (currentPage - 1) * perPage;
+    const skip = (currentPage - 1) * perPage;
 
     // filters
     const query = {};
 
     // flag filter
-    if (
-      flag !== undefined &&
-      flag !== null &&
-      flag !== ""
-    ) {
+    if (flag !== undefined && flag !== null && flag !== "") {
       query.flag = Number(flag);
     }
 
     // status filter
-    if (
-      status !== undefined &&
-      status !== null &&
-      status !== ""
-    ) {
+    if (status !== undefined && status !== null && status !== "") {
       query.status = Number(status);
     }
 
     // sorting
-    let sortQuery = {
-      createdAt: -1,
-    };
+    let sortQuery = {createdAt: -1};
 
     const allowedSortFields = [
       "name",
       "detectedCountry",
     ];
 
-    if (
-      sortBy &&
-      allowedSortFields.includes(sortBy)
-    ) {
+    if (sortBy && allowedSortFields.includes(sortBy)) {
       sortQuery = {
         [sortBy]:
           sortOrder === "desc" ? -1 : 1,
@@ -762,10 +746,7 @@ export const deleteUsersService = async ({ userId, userIds }) => {
       };
     }
 
-    if (
-      Array.isArray(userIds) &&
-      userIds.length > 0
-    ) {
+    if (Array.isArray(userIds) && userIds.length > 0) {
       const result =
         await User.deleteMany({
           _id: {
