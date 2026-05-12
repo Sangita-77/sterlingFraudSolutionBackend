@@ -553,7 +553,7 @@ export const getAllUserDataService = async ({page,limit,flag,status,sortBy,sortO
 
     const users = await User.find(query)
       .select(
-        "-password -sessions -refreshToken -profileImage"
+        "-password -sessions -refreshToken"
       )
       .sort(sortQuery)
       .skip(skip)
@@ -617,7 +617,7 @@ export const searchUsersService = async ({search,page,limit}) => {
 
   const users = await User.find(searchQuery)
     .select(
-      "-password -sessions -refreshToken -profileImage"
+      "-password -sessions -refreshToken"
     )
     .sort({ createdAt: -1 })
     .skip(skip)
