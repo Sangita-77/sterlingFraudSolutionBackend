@@ -13,6 +13,7 @@ import {
   getAllUserDataService,
   searchUsersService,
   deleteUsersService,
+  getUserWithStatusesService,
 } from "../services/user.service.js";
 import { blacklistToken, hashToken } from "../services/token.service.js";
 import User from "../models/user.model.js";
@@ -108,6 +109,8 @@ export const loginUser = async (req, res) => {
       }
     );
 
+    const userWithStatuses = await getUserWithStatusesService(userUpdate || user);
+
     res.json({
       success: true,
       accessToken,
@@ -128,6 +131,11 @@ export const loginUser = async (req, res) => {
         phone: user.phone,
         company_name: user.company_name,
         profileImage: user.profileImage,
+        userStatus: userWithStatuses.userStatus,
+        documentStatuses: userWithStatuses.documentStatuses,
+        reportStatuses: userWithStatuses.reportStatuses,
+        caseDocumentStatuses: userWithStatuses.caseDocumentStatuses,
+        statuses: userWithStatuses.statuses,
       },
     });
   } catch (error) {

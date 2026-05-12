@@ -1,6 +1,7 @@
 import User from "../models/user.model.js";
 import Document from "../models/document.model.js";
 import Report from "../models/report.model.js";
+import CaseDocument from "../models/caseDocument.model.js";
 import bcrypt from "bcrypt";
 import { hashToken, generateSessionId, blacklistToken } from "./token.service.js";
 import { sendMail } from "./email.service.js";
@@ -18,6 +19,110 @@ const formatUserData = (user) => {
   delete userData.emailVerificationCodeExpiresAt;
 
   return userData;
+};
+
+const getUserIdString = (user) => {
+  const userData = user.toObject ? user.toObject() : user;
+  return String(userData._id);
+};
+
+const buildUserStatuses = async (users) => {
+  const userIds = users.map((user) => getUserIdString(user));
+  const statusesByUserId = new Map(
+    userIds.map((userId) => [
+      userId,
+      {
+        documents: [],
+        reports: [],
+        caseDocuments: [],
+      },
+    ])
+  );
+
+  if (userIds.length === 0) {
+    return statusesByUserId;
+  }
+
+  const [documents, reports, caseDocuments] = await Promise.all([
+    Document.find({ userId: { $in: userIds } })
+      .select("_id userId documentType status uploadedAt")
+      .lean(),
+    Report.find({ userId: { $in: userIds } })
+      .select("_id userId bitcoinAddress status uploadedAt")
+      .lean(),
+    CaseDocument.find({ userId: { $in: userIds } })
+      .select("_id userId reportId documentType status uploadedAt")
+      .lean(),
+  ]);
+
+  documents.forEach((document) => {
+    const userId = String(document.userId);
+    statusesByUserId.get(userId)?.documents.push({
+      id: document._id,
+      documentType: document.documentType,
+      status: document.status,
+      uploadedAt: document.uploadedAt,
+    });
+  });
+
+  reports.forEach((report) => {
+    const userId = String(report.userId);
+    statusesByUserId.get(userId)?.reports.push({
+      id: report._id,
+      bitcoinAddress: report.bitcoinAddress,
+      status: report.status,
+      uploadedAt: report.uploadedAt,
+    });
+  });
+
+  caseDocuments.forEach((caseDocument) => {
+    const userId = String(caseDocument.userId);
+    statusesByUserId.get(userId)?.caseDocuments.push({
+      id: caseDocument._id,
+      reportId: caseDocument.reportId,
+      documentType: caseDocument.documentType,
+      status: caseDocument.status,
+      uploadedAt: caseDocument.uploadedAt,
+    });
+  });
+
+  return statusesByUserId;
+};
+
+const attachStatusesToUser = (user, relatedStatuses) => {
+  const userData = formatUserData(user);
+  const statuses = relatedStatuses || {
+    documents: [],
+    reports: [],
+    caseDocuments: [],
+  };
+
+  return {
+    ...userData,
+    userStatus: userData.status,
+    documentStatuses: statuses.documents,
+    reportStatuses: statuses.reports,
+    caseDocumentStatuses: statuses.caseDocuments,
+    statuses: {
+      user: userData.status,
+      documents: statuses.documents,
+      reports: statuses.reports,
+      caseDocuments: statuses.caseDocuments,
+    },
+  };
+};
+
+const attachStatusesToUsers = async (users) => {
+  const statusesByUserId = await buildUserStatuses(users);
+
+  return users.map((user) =>
+    attachStatusesToUser(user, statusesByUserId.get(getUserIdString(user)))
+  );
+};
+
+export const getUserWithStatusesService = async (user) => {
+  const [userWithStatuses] = await attachStatusesToUsers([user]);
+  return userWithStatuses;
 };
 
 const saveProfileImage = (userId, file, existingFilePath = null) => {
@@ -127,7 +232,7 @@ export const createUserService = async (data) => {
 
   await user.save(); // pre-save WILL run here
 
-  return user;
+  return getUserWithStatusesService(user);
 };
 
 export const loginUserService = async (
@@ -450,7 +555,7 @@ export const updateUserService = async (userId, updates) => {
   Object.assign(user, updateData);
   await user.save();
 
-  return user;
+  return getUserWithStatusesService(user);
 };
 
 export const getCreatedUpdatedUserDataService = async (userId) => {
@@ -464,7 +569,7 @@ export const getCreatedUpdatedUserDataService = async (userId) => {
     throw new Error("User account is not active");
   }
 
-  return formatUserData(user);
+  return getUserWithStatusesService(user);
 };
 
 export const getUserDataService = async (userId) => {
@@ -478,9 +583,7 @@ export const getUserDataService = async (userId) => {
     throw new Error("User account is not active");
   }
 
-  return {
-    user: user,
-  };
+  return getUserWithStatusesService(user);
 };
 
 export const addReportService = async (userId, reportData) => {
@@ -563,7 +666,7 @@ export const getAllUserDataService = async ({page,limit,flag,status,sortBy,sortO
       await User.countDocuments(query);
 
     return {
-      users,
+      users: await attachStatusesToUsers(users),
       pagination: {
         total: totalUsers,
         page: currentPage,
@@ -627,7 +730,7 @@ export const searchUsersService = async ({search,page,limit}) => {
     await User.countDocuments(searchQuery);
 
   return {
-    users,
+    users: await attachStatusesToUsers(users),
     pagination: {
       total: totalUsers,
       page: currentPage,

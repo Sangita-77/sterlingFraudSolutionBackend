@@ -2,6 +2,7 @@ import Document from "../models/document.model.js";
 import CaseDocument from "../models/caseDocument.model.js";
 import Report from "../models/report.model.js";
 import User from "../models/user.model.js";
+import { getUserWithStatusesService } from "./user.service.js";
 import fs from "fs";
 import path from "path";
 
@@ -65,7 +66,7 @@ export const getUserDocumentsService = async (userId) => {
   const documents = await Document.find({ userId }).sort({ uploadedAt: -1 }).lean();
 
     return {
-        user: user,
+        user: await getUserWithStatusesService(user),
         documents: documents,
     };
 };
