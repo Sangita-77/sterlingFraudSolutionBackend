@@ -23,24 +23,7 @@ app.use(helmet());
 
 
 
-// app.use(cors());
-
-// app.use(
-//   cors({
-//     origin: "*",
-//     credentials: true,
-//   })
-// );
-
-app.use(
-  cors({
-    origin: [
-      "https://dreamgroupsindia.com",
-      "http://localhost:5173",
-    ],
-    credentials: true,
-  })
-);
+app.use(cors());
 
 app.use(express.json());
 
