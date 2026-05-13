@@ -21,7 +21,6 @@ const createTransporter = () =>
 
 export const sendMail = async ({ to, subject, text, html }) => {
   validateTransportConfig();
-  const transporter = createTransporter();
 
   const mailOptions = {
     from: process.env.EMAIL_FROM || process.env.EMAIL_USER,
