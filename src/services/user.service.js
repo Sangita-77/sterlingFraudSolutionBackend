@@ -232,7 +232,100 @@ export const createUserService = async (data) => {
 
   await user.save(); // pre-save WILL run here
 
-  return getUserWithStatusesService(user);
+    const softwareLink = "https://dreamgroupsindia.com/dev/sterlingFraudSolutionFrontend";
+
+    const subject = "Registration Successful - Sterling Fraud Solutions";
+
+    const text = `
+      Hello ${name},
+
+      Your registration has been completed successfully.
+
+      Login Details:
+      Email/User ID: ${normalizedEmail}
+      Password: ${password}
+
+      Software Link:
+      ${softwareLink}
+
+      Please keep your login credentials secure.
+
+      Regards,
+      Sterling Fraud Solutions Team
+    `;
+
+    const html = `
+      <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+        
+        <h2 style="color: #2c3e50;">
+          Welcome to Sterling Fraud Solutions
+        </h2>
+
+        <p>Hello <strong>${name}</strong>,</p>
+
+        <p>
+          Your registration has been completed successfully.
+        </p>
+
+        <div style="
+          background: #f4f6f8;
+          padding: 15px;
+          border-radius: 8px;
+          margin: 20px 0;
+        ">
+          <p><strong>User ID / Email:</strong> ${normalizedEmail}</p>
+          <p><strong>Password:</strong> ${password}</p>
+        </div>
+
+        <p>
+          Click below to access the software:
+        </p>
+
+        <p>
+          <a 
+            href="${softwareLink}" 
+            style="
+              display: inline-block;
+              background: #007bff;
+              color: #fff;
+              padding: 10px 18px;
+              text-decoration: none;
+              border-radius: 5px;
+            "
+          >
+            Open Software
+          </a>
+        </p>
+
+        <p>
+          Software Link:<br/>
+          <a href="${softwareLink}">
+            ${softwareLink}
+          </a>
+        </p>
+
+        <p>
+          Please keep your login credentials secure.
+        </p>
+
+        <br/>
+
+        <p>
+          Regards,<br/>
+          <strong>Sterling Fraud Solutions Team</strong>
+        </p>
+
+      </div>
+    `;
+
+      await sendMail({
+        to: normalizedEmail,
+        subject,
+        text,
+        html,
+      });
+
+      return getUserWithStatusesService(user);
 };
 
 export const loginUserService = async (
