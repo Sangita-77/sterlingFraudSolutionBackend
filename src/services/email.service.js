@@ -22,6 +22,9 @@ const createTransporter = () =>
 export const sendMail = async ({ to, subject, text, html }) => {
   validateTransportConfig();
 
+    await transporter.verify();
+    console.log("✅ SMTP Connected Successfully");
+
   const mailOptions = {
     from: process.env.EMAIL_FROM || process.env.EMAIL_USER,
     to,
