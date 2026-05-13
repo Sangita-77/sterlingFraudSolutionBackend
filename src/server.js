@@ -2,7 +2,13 @@ import dotenv from "dotenv";
 import app from "./app.js";
 import connectDB from "./config/db.js";
 
+import express from "express";
+
 dotenv.config();
+
+console.log("EMAIL_HOST:", process.env.EMAIL_HOST);
+console.log("EMAIL_USER:", process.env.EMAIL_USER);
+console.log("EMAIL_PASS:", process.env.EMAIL_PASS);
 
 connectDB();
 
@@ -15,8 +21,8 @@ app.listen(PORT, () => {
 
 
 
-// // app.listen(env.PORT, () => {
+// app.listen(env.PORT, () => {
 
-// //   console.log(`🚀 Server running on port ${env.PORT}`);
+//   console.log(`🚀 Server running on port ${env.PORT}`);
 
-// // });
+// });
