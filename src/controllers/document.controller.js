@@ -64,7 +64,7 @@ export const getUserDocuments = async (req, res) => {
 
 export const updateDocumentById = async (req, res) => {
   try {
-    const documentId = req.params.id || req.body.id;
+    const documentId = req.params.id || req.body.id || req.body.documentId;
     const userId = req.body.userId || req.userId;
     const { status, documentType } = req.body;
     const file = req.file;

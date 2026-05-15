@@ -42,12 +42,57 @@ import { authenticateToken, optionalAuth } from "./middlewares/auth.middleware.j
 
  
 const router = Router();
-const upload = multer({ storage: multer.memoryStorage() });
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: 10 * 1024 * 1024,
+  },
+});
+
+const handleSingleFileUpload = (fieldName) => (req, res, next) => {
+  upload.single(fieldName)(req, res, (error) => {
+    if (!error) {
+      return next();
+    }
+
+    if (error instanceof multer.MulterError) {
+      const status = error.code === "LIMIT_FILE_SIZE" ? 413 : 400;
+      const message =
+        error.code === "LIMIT_FILE_SIZE"
+          ? "File is too large. Maximum allowed size is 10MB"
+          : error.message;
+
+      return res.status(status).json({ message });
+    }
+
+    return res.status(400).json({ message: error.message });
+  });
+};
+
+const handleAnyFileUpload = (req, res, next) => {
+  upload.any()(req, res, (error) => {
+    if (!error) {
+      return next();
+    }
+
+    if (error instanceof multer.MulterError) {
+      const status = error.code === "LIMIT_FILE_SIZE" ? 413 : 400;
+      const message =
+        error.code === "LIMIT_FILE_SIZE"
+          ? "File is too large. Maximum allowed size is 10MB"
+          : error.message;
+
+      return res.status(status).json({ message });
+    }
+
+    return res.status(400).json({ message: error.message });
+  });
+};
 
 
 
 // Public routes
-router.post("/register", upload.any(), registerUser);
+router.post("/register", handleAnyFileUpload, registerUser);
 router.post("/login", loginUser);
 router.post("/refresh-token", refreshAccessToken);
 router.post("/send-code", sendCodeToMail);
@@ -71,14 +116,14 @@ router.post("/blockchain/address/all-tx-bounds", getAddressAllTxBounds);
 router.post("/blockchain/address/tx" , getAddressTx);
 router.post("/blockchain/address/owner-details", authenticateToken , getBitAddressOwnerDetails);
 
-router.put("/update-user", authenticateToken, upload.any(), updateUser);
+router.put("/update-user", authenticateToken, handleAnyFileUpload, updateUser);
 router.get("/user-data", authenticateToken, getCreatedUpdatedUserData);
 router.post("/get-user-data", authenticateToken, getUserData);
-router.post("/upload-document", authenticateToken, upload.single("file"), uploadDocument);
+router.post("/upload-document", authenticateToken, handleSingleFileUpload("file"), uploadDocument);
 router.post("/get-documents", authenticateToken, getUserDocuments);
-router.put("/documents/:id", authenticateToken, upload.single("file"), updateDocumentById);
-router.post("/update-documents", authenticateToken, upload.single("file"), updateDocumentById);
-router.post("/reports/supporting-documents", authenticateToken , upload.single("file"), uploadCaseDocument);
+router.put("/documents/:id", authenticateToken, handleSingleFileUpload("file"), updateDocumentById);
+router.post("/update-documents", authenticateToken, handleSingleFileUpload("file"), updateDocumentById);
+router.post("/reports/supporting-documents", authenticateToken , handleSingleFileUpload("file"), uploadCaseDocument);
 
 router.post("/add-report", addReport);
 
