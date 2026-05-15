@@ -672,9 +672,9 @@ export const getUserDataService = async (userId) => {
     throw new Error("User not found");
   }
 
-  if (user.status !== 1) {
-    throw new Error("User account is not active");
-  }
+  // if (user.status !== 1) {
+  //   throw new Error("User account is not active");
+  // }
 
   return getUserWithStatusesService(user);
 };
