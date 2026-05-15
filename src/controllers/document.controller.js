@@ -19,6 +19,7 @@ export const uploadDocument = async (req, res) => {
     //   return res.status(400).json({ message: "Valid document type is required (passport, national_id, driving_license)" });
     // }
 
+    
     const allowedDocumentTypes = [
       "passport_front",
       "passport_back",
