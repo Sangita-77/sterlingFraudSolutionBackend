@@ -79,7 +79,12 @@ export const updateDocumentById = async (req, res) => {
     if (documentType) updateData.documentType = documentType;
     if (file) updateData.file = file;
 
-    const updatedDocument = await updateDocumentByIdService(documentId, updateData, userId);
+    const updatedDocument = await updateDocumentByIdService(
+      documentId,
+      updateData,
+      userId,
+      req.userId
+    );
     res.json({ success: true, document: updatedDocument });
   } catch (error) {
     res.status(400).json({ message: error.message });

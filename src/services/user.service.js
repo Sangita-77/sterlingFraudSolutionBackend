@@ -5,6 +5,7 @@ import CaseDocument from "../models/caseDocument.model.js";
 import bcrypt from "bcrypt";
 import { hashToken, generateSessionId, blacklistToken } from "./token.service.js";
 import { sendMail } from "./email.service.js";
+import { notifySuperAdminsService } from "./notification.service.js";
 import fs from "fs";
 import path from "path";
 
@@ -231,6 +232,23 @@ export const createUserService = async (data) => {
   }
 
   await user.save(); // pre-save WILL run here
+
+    if (user.flag === 2) {
+      await notifySuperAdminsService({
+        actorId: user._id,
+        action: "customer_registered",
+        title: "New customer registered",
+        message: `${user.name} registered as a new customer.`,
+        entityType: "user",
+        entityId: user._id,
+        metadata: {
+          customerId: user._id,
+          name: user.name,
+          email: user.email,
+          flag: user.flag,
+        },
+      });
+    }
 
     const softwareLink = "https://dreamgroupsindia.com/dev/sterlingFraudSolutionFrontend";
 

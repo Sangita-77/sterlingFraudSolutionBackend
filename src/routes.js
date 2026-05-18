@@ -37,6 +37,11 @@ import {
   getAddressTx,
   getBitAddressOwnerDetails,
 } from "./controllers/blockchain.controller.js";
+import {
+  getNotifications,
+  markAllNotificationsRead,
+  markNotificationRead,
+} from "./controllers/notification.controller.js";
 import { authenticateToken, optionalAuth } from "./middlewares/auth.middleware.js";
 
 
@@ -126,6 +131,11 @@ router.post("/update-documents", authenticateToken, handleSingleFileUpload("file
 router.post("/reports/supporting-documents", authenticateToken , handleSingleFileUpload("file"), uploadCaseDocument);
 
 router.post("/add-report", addReport);
+
+router.get("/notifications", authenticateToken, getNotifications);
+router.post("/notifications", authenticateToken, getNotifications);
+router.put("/notifications/:id/read", authenticateToken, markNotificationRead);
+router.put("/notifications/read-all", authenticateToken, markAllNotificationsRead);
 
 router.post("/get-all-users", authenticateToken, getAllUserData);
 router.post("/search-users", authenticateToken, searchUsers);

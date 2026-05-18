@@ -3,6 +3,10 @@ import CaseDocument from "../models/caseDocument.model.js";
 import Report from "../models/report.model.js";
 import User from "../models/user.model.js";
 import { getUserWithStatusesService } from "./user.service.js";
+import {
+  notifyCustomerKycStatusService,
+  notifySuperAdminsService,
+} from "./notification.service.js";
 import fs from "fs";
 import path from "path";
 
@@ -54,6 +58,22 @@ export const uploadDocumentService = async (userId, documentType, file) => {
 
   await document.save();
 
+  await notifySuperAdminsService({
+    actorId: user._id,
+    action: "kyc_uploaded",
+    title: "New KYC uploaded",
+    message: `${user.name} uploaded ${documentType} for KYC verification.`,
+    entityType: "document",
+    entityId: document._id,
+    metadata: {
+      customerId: user._id,
+      customerName: user.name,
+      customerEmail: user.email,
+      documentType,
+      status: document.status,
+    },
+  });
+
   return document;
 };
 
@@ -71,9 +91,19 @@ export const getUserDocumentsService = async (userId) => {
     };
 };
 
-export const updateDocumentByIdService = async (documentId, updateData, userId) => {
-  if (!userId) {
+export const updateDocumentByIdService = async (
+  documentId,
+  updateData,
+  targetUserId,
+  actorUserId
+) => {
+  if (!actorUserId) {
     throw new Error("User authentication required");
+  }
+
+  const actor = await User.findById(actorUserId);
+  if (!actor) {
+    throw new Error("Authenticated user not found");
   }
 
   const document = await Document.findById(documentId);
@@ -81,9 +111,29 @@ export const updateDocumentByIdService = async (documentId, updateData, userId) 
     throw new Error("Document not found");
   }
 
-  if (document.userId.toString() !== userId.toString()) {
+  const isSuperAdmin = actor.flag === 0;
+  const isOwner = document.userId.toString() === actorUserId.toString();
+  const requestedUserMatchesDocument =
+    !targetUserId || document.userId.toString() === targetUserId.toString();
+
+  if (!requestedUserMatchesDocument) {
     throw new Error("Unauthorized to update this document");
   }
+
+  if (!isSuperAdmin && !isOwner) {
+    throw new Error("Unauthorized to update this document");
+  }
+
+  if (typeof updateData.status !== "undefined" && !isSuperAdmin) {
+    throw new Error("Only super admin can update KYC status");
+  }
+
+  if ((updateData.file || updateData.documentType) && !isOwner && !isSuperAdmin) {
+    throw new Error("Unauthorized to update this document");
+  }
+
+  const previousStatus = document.status;
+  const hadFileUpdate = Boolean(updateData.file);
 
   if (updateData.documentType) {
     // const allowedTypes = ["passport", "national_id", "driving_license"];
@@ -141,6 +191,38 @@ export const updateDocumentByIdService = async (documentId, updateData, userId) 
 
   Object.assign(document, updateData);
   await document.save();
+
+  if (hadFileUpdate) {
+    const customer = isOwner ? actor : await User.findById(document.userId);
+
+    await notifySuperAdminsService({
+      actorId: actor._id,
+      action: "kyc_uploaded",
+      title: "KYC document updated",
+      message: `${customer?.name || "Customer"} updated ${document.documentType} for KYC verification.`,
+      entityType: "document",
+      entityId: document._id,
+      metadata: {
+        customerId: document.userId,
+        customerName: customer?.name,
+        customerEmail: customer?.email,
+        documentType: document.documentType,
+        status: document.status,
+      },
+    });
+  }
+
+  if (
+    typeof updateData.status !== "undefined" &&
+    previousStatus !== document.status
+  ) {
+    await notifyCustomerKycStatusService({
+      customerId: document.userId,
+      actorId: actor._id,
+      document,
+      previousStatus,
+    });
+  }
 
   return document;
 };
