@@ -11,3 +11,4 @@ temp_interactive_push.bat
 ecosystem.config.js
 # Added by ggshield
 .cache_ggshield
+branch_structure.json
